@@ -13,21 +13,33 @@
 <body>
     <div class="container">
         <aside class="sidebar">
-            <h1 class="logo">MeuPlayer</h1>
-            <nav>
-                <ul>
-                    <li><a href="#"><i class="fas fa-home"></i> Início</a></li>
-                    <li><a href="#"><i class="fas fa-search"></i> Buscar</a></li>
-                    <li><a href="#"><i class="fas fa-book"></i> Sua Biblioteca</a></li>
-                </ul>
-            </nav>
+            <div> <h1 class="logo">MeuPlayer</h1>
+                <nav class="primary-nav">
+                    <ul>
+                        <li><a href="#"><i class="fas fa-home"></i> Início</a></li>
+                        <li><a href="#"><i class="fas fa-user"></i> Meu Perfil</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div> <nav class="secondary-nav">
+                    <ul>
+                        <li><a href="#"><i class="fas fa-book"></i> Sua Biblioteca</a></li>
+                        <li><a href="#"><i class="fas fa-cog"></i> Configurações</a></li>
+                    </ul>
+                </nav>
+            </div>
         </aside>
 
         <main class="main-content">
             <header>
-                <h2>Músicas para você</h2>
-            </header>
-
+                <header>
+                    <div class="search-bar">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-input" placeholder="O que você quer ouvir?">
+                    </div>
+                    <h2>Músicas para você</h2>
+                </header>
             <section class="genre-section">
                 <h3>Top 10 em Alta</h3>
                 <div class="track-grid" id="top-trending-container">
