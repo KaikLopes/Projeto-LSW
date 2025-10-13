@@ -27,15 +27,48 @@
             <header>
                 <h2>Músicas para você</h2>
             </header>
-            <div id="playlist" class="playlist-container">
-                <div class="loading">Carregando músicas...</div>
-            </div>
+
+            <section class="genre-section">
+                <h3>Top 10 em Alta</h3>
+                <div class="track-grid" id="top-trending-container">
+                    <div class="loading">Carregando...</div>
+                </div>
+            </section>
+
+            <section class="genre-section">
+                <h3>Forró</h3>
+                <div class="track-grid" id="forro-container">
+                    <div class="loading">Carregando...</div>
+                </div>
+            </section>
+
+            <section class="genre-section">
+                <h3>Sertanejo</h3>
+                <div class="track-grid" id="sertanejo-container">
+                    <div class="loading">Carregando...</div>
+                </div>
+            </section>
+
+            <section class="genre-section">
+                <h3>MPB</h3>
+                <div class="track-grid" id="mpb-container">
+                    <div class="loading">Carregando...</div>
+                </div>
+            </section>
+
+            <section class="genre-section">
+                <h3>Internacional</h3>
+                <div class="track-grid" id="internacional-container">
+                    <div class="loading">Carregando...</div>
+                </div>
+            </section>
+
         </main>
     </div>
 
     <footer class="player-bar">
         <div class="song-info">
-            <img id="current-cover" src="https://via.placeholder.com/64" alt="Capa do Álbum">
+            <img id="current-cover" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjMjgyODI4Ii8+CjxwYXRoIGQ9Ik0zMiAzOEMyNS4zNzI2IDM4IDIwIDQzLjM3MjYgMjAgNTBDMjAgNTYuNjI3NCAyNS4zNzI2IDYyIDMyIDYyQzM4LjYyNzQgNjIgNDQgNTYuNjI3NCA0NCA1MEM0NCA0My4zNzI2IDM4LjYyNzQgMzggMzIgMzhaTTMyIDU4QzI3LjU4MTcgNTggMjQgNTQuNDE4MyAyNCA1MEMyNCA0NS41ODE3IDI3LjU4MTcgNDIgMzIgNDJDMzYuNDE4MyA0MiA0MCA0NS41ODE3IDQwIDUwQzQwIDU0LjQxODMgMzYuNDE4MyA1OCAzMiA1OFoiIGZpbGw9IiM1MzUzNTMiLz4KPHBhdGggZD0iTTMyIDI4QzI3LjU4MTcgMjggMjQgMzEuNTgxNyAyNCAzNkMyNCA0MC40MTgzIDI3LjU4MTcgNDQgMzIgNDRDMzYuNDE4MyA0NCA0MCA0MC40MTgzIDQwIDM2QzQwIDMxLjU4MTcgMzYuNDE4MyAyOCAzMiAyOFoiIGZpbGw9IiM1MzUzNTMiLz4KPC9zdmc+Cg==" alt="Capa do Álbum">
             <div>
                 <h3 id="current-title">Selecione uma música</h3>
                 <p id="current-artist">-</p>
