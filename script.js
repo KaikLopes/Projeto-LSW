@@ -1,19 +1,18 @@
-/* === Meu Player de Música - Script JS === */
+/* === Meu Player Completo - Script JS === */
 
-// Espera o HTML ser carregado antes de executar o script
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. CONSTANTES E ELEMENTOS DO DOM ---
-
-    // Chave da API Jamendo
-    const CLIENT_ID = '726b76ab';
+    // --- 1. CONSTANTES E ELEMENTOS ---
+    const CLIENT_ID = '726b76ab'; 
     const API_BASE_URL = 'https://api.jamendo.com/v3.0';
 
-    // Elementos do Player
+    // Player Elements (Mini)
     const audioPlayer = document.getElementById('audio-player');
     const playPauseBtn = document.getElementById('play-pause-btn');
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
+    const repeatBtn = document.getElementById('repeat-btn');
+    const queueBtn = document.getElementById('queue-btn');
     const currentCover = document.getElementById('current-cover');
     const currentTitle = document.getElementById('current-title');
     const currentArtist = document.getElementById('current-artist');
@@ -22,260 +21,312 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentTimeEl = document.getElementById('current-time');
     const durationEl = document.getElementById('duration');
     const volumeSlider = document.getElementById('volume-slider');
+    const miniPlayerClickArea = document.getElementById('mini-player-click-area');
 
-    // Elementos da Busca
-    const searchInput = document.querySelector('.search-input');
-    const mainContent = document.querySelector('.main-content'); // Onde os resultados da busca aparecerão
+    // Floating Player Elements
+    const floatingPlayer = document.getElementById('floating-player');
+    const closeFpBtn = document.getElementById('close-fp-btn');
+    const fpCover = document.getElementById('fp-cover');
+    const fpTitle = document.getElementById('fp-title');
+    const fpArtist = document.getElementById('fp-artist');
+    const fpPlayPauseBtn = document.getElementById('fp-play-pause-btn');
+    const fpPrevBtn = document.getElementById('fp-prev-btn');
+    const fpNextBtn = document.getElementById('fp-next-btn');
+    const fpRepeatBtn = document.getElementById('fp-repeat-btn');
+    const fpProgressBar = document.getElementById('fp-progress-bar');
+    const fpProgress = document.getElementById('fp-progress');
+    const fpCurrentTimeEl = document.getElementById('fp-current-time');
+    const fpDurationEl = document.getElementById('fp-duration');
 
-    // Containers de Gênero
+    // Queue Elements
+    const queueSidebar = document.getElementById('queue-sidebar');
+    const queueList = document.getElementById('queue-list');
+    const closeQueueBtn = document.getElementById('close-queue-btn');
+
+    // Search & Containers (TODOS os containeres aqui)
+    const searchInput = document.getElementById('search-input-field');
+    const mainContent = document.getElementById('content-area');
+    
     const trendingContainer = document.getElementById('top-trending-container');
     const rockContainer = document.getElementById('rock-container');
     const popContainer = document.getElementById('pop-container');
     const electronicContainer = document.getElementById('electronic-container');
     const hiphopContainer = document.getElementById('hiphop-container');
 
-    // Estado do Player
-    let currentPlaylist = []; // Guarda a lista de músicas que está tocando (ex: a lista de 'rock')
-    let currentTrackIndex = 0; // O índice da música atual na 'currentPlaylist'
+
+    // --- ESTADO DO PLAYER ---
+    let currentPlaylist = []; 
+    let currentTrackIndex = 0; 
     let isPlaying = false;
+    let repeatState = 0; // 0=Off, 1=All, 2=One
+    let isQueueOpen = false;
+    let isFloatingPlayerOpen = false;
 
 
-    // --- 2. LÓGICA DA API JAMENDO ---
-
-    /**
-     * Busca músicas na API Jamendo com base em tags e ordem.
-     * @param {string} tags - Gêneros para buscar (ex: 'rock', 'pop')
-     * @param {string} order - Como ordenar (ex: 'popularity_week')
-     * @param {number} limit - Quantas músicas trazer
-     * @returns {Array} - Uma lista de músicas formatada
-     */
+    // --- 2. API ---
     async function fetchTracks(tags = '', order = 'popularity_month', limit = 10) {
         let url = `${API_BASE_URL}/tracks/?client_id=${CLIENT_ID}&format=json&limit=${limit}&order=${order}`;
-        if (tags) {
-            url += `&tags=${tags}`;
-        }
-
+        if (tags) url += `&tags=${tags}`;
         try {
             const response = await fetch(url);
             const data = await response.json();
-
-            // Mapeia a resposta da API para o formato que nosso player usa
             return data.results.map(track => ({
                 id: track.id,
                 title: track.name,
                 artist: track.artist_name,
-                arquivo: track.audio, // O link direto do MP3!
-                capa: track.image, // O link da capa do álbum
+                arquivo: track.audio,
+                capa: track.image.replace('1.jpg', '4.jpg'), 
             }));
-        } catch (error) {
-            console.error(`Erro ao buscar músicas (${tags}):`, error);
-            return []; // Retorna um array vazio se der erro
-        }
+        } catch (error) { console.error('Erro API:', error); return []; }
     }
 
-
-    // --- 3. RENDERIZAÇÃO (Mostrar Músicas na Tela) ---
-
-    /**
-     * Cria os cards de música e os insere no HTML.
-     * @param {Array} tracks - Lista de músicas vinda da API
-     * @param {HTMLElement} container - O elemento <div> onde os cards serão inseridos
-     */
     function renderTracks(tracks, container) {
-        // Limpa a mensagem "Carregando..."
         container.innerHTML = '';
-
-        if (tracks.length === 0) {
-            container.innerHTML = '<p>Nenhuma música encontrada.</p>';
-            return;
-        }
-
+        if (tracks.length === 0) { container.innerHTML = '<p>Nada encontrado.</p>'; return; }
         tracks.forEach((track, index) => {
             const trackCard = document.createElement('div');
-            trackCard.className = 'track-card'; // Adiciona a classe para o CSS
+            trackCard.className = 'track-card';
             trackCard.innerHTML = `
                 <img src="${track.capa}" alt="${track.title}">
-                <div class="track-info">
-                    <h4>${track.title}</h4>
-                    <p>${track.artist}</p>
-                </div>
+                <h4>${track.title}</h4>
+                <p>${track.artist}</p>
             `;
-
-            // A MÁGICA ACONTECE AQUI:
-            // Adiciona um evento de clique em cada card
             trackCard.addEventListener('click', () => {
-                currentPlaylist = tracks; // Define a playlist atual (ex: todas as músicas de rock)
-                currentTrackIndex = index; // Define a música que o usuário clicou
-                loadTrack(track); // Carrega a música no player
-                playSong(); // Toca a música
+                currentPlaylist = tracks;
+                currentTrackIndex = index;
+                loadTrack(currentPlaylist[currentTrackIndex]);
+                playSong();
             });
-
             container.appendChild(trackCard);
         });
     }
 
 
-    // --- 4. LÓGICA DO PLAYER DE MÚSICA ---
-
-    /**
-     * Carrega os dados de uma música no player e na barra inferior.
-     * @param {object} track - O objeto da música (com title, artist, etc.)
-     */
+    // --- 3. CONTROLES DE ÁUDIO ---
     function loadTrack(track) {
+        // Mini
         currentTitle.textContent = track.title;
         currentArtist.textContent = track.artist;
         currentCover.src = track.capa;
-        audioPlayer.src = track.arquivo; // Define o MP3 no player
+        // Floating
+        fpTitle.textContent = track.title;
+        fpArtist.textContent = track.artist;
+        fpCover.src = track.capa;
+        
+        audioPlayer.src = track.arquivo;
+        progress.style.width = '0%'; fpProgress.style.width = '0%';
+        
+        // Atualiza a fila se estiver aberta para mostrar qual está tocando
+        if(isQueueOpen) renderQueue();
     }
 
-    /** Toca a música e atualiza o ícone */
     function playSong() {
+        if (!audioPlayer.src) return;
         isPlaying = true;
         playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        fpPlayPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
         audioPlayer.play();
+        if(isQueueOpen) renderQueue();
     }
 
-    /** Pausa a música e atualiza o ícone */
     function pauseSong() {
         isPlaying = false;
         playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        fpPlayPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
         audioPlayer.pause();
+        if(isQueueOpen) renderQueue();
     }
 
-    /** Lógica do botão principal de Play/Pause */
-    function handlePlayPause() {
-        if (!audioPlayer.src) return; // Não faz nada se nenhuma música foi carregada
-        if (isPlaying) {
-            pauseSong();
-        } else {
-            playSong();
-        }
-    }
+    function handlePlayPause() { isPlaying ? pauseSong() : playSong(); }
 
-    /** Toca a música anterior na playlist atual */
     function prevSong() {
         if (currentPlaylist.length === 0) return;
-        currentTrackIndex--;
-        // Se for a primeira, volta para a última (loop)
-        if (currentTrackIndex < 0) {
-            currentTrackIndex = currentPlaylist.length - 1;
+        if (audioPlayer.currentTime > 3) {
+            audioPlayer.currentTime = 0;
+        } else {
+            currentTrackIndex--;
+            if (currentTrackIndex < 0) currentTrackIndex = currentPlaylist.length - 1;
+            loadTrack(currentPlaylist[currentTrackIndex]);
         }
-        loadTrack(currentPlaylist[currentTrackIndex]);
         playSong();
     }
 
-    /** Toca a próxima música na playlist atual */
-    function nextSong() {
+    function nextSong(isAuto = false) {
         if (currentPlaylist.length === 0) return;
-        currentTrackIndex++;
-        // Se for a última, volta para a primeira (loop)
-        if (currentTrackIndex >= currentPlaylist.length) {
-            currentTrackIndex = 0;
-        }
-        loadTrack(currentPlaylist[currentTrackIndex]);
-        playSong();
-    }
-
-    /** Atualiza a barra de progresso e os tempos */
-    function updateProgress(e) {
-        const { duration, currentTime } = e.srcElement;
         
-        // Atualiza a barra
-        const progressPercent = (currentTime / duration) * 100;
-        progress.style.width = `${progressPercent}%`;
-
-        // Atualiza os números de tempo
-        if (duration) {
-            durationEl.textContent = formatTime(duration);
-        }
-        currentTimeEl.textContent = formatTime(currentTime);
-    }
-
-    /** Permite clicar na barra de progresso para avançar a música */
-    function setProgress(e) {
-        const width = this.clientWidth; // Largura total da barra
-        const clickX = e.offsetX; // Onde o usuário clicou
-        const duration = audioPlayer.duration;
-
-        if (duration) {
-            audioPlayer.currentTime = (clickX / width) * duration;
-        }
-    }
-
-    /** Formata segundos para o formato "minutos:segundos" */
-    function formatTime(seconds) {
-        if (isNaN(seconds)) return '0:00';
-        const minutes = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-    }
-
-    /** Controla o volume */
-    function setVolume(e) {
-        audioPlayer.volume = e.target.value;
-    }
-
-
-    // --- 5. LÓGICA DE BUSCA ---
-
-    /**
-     * Lida com a busca quando o usuário aperta "Enter".
-     */
-    async function handleSearch(e) {
-        // Só executa se a tecla for "Enter" e o campo não estiver vazio
-        if (e.key !== 'Enter' || searchInput.value.trim() === '') {
+        // Repetir Uma (Estado 2) e for automático (fim da musica)
+        if (repeatState === 2 && isAuto) {
+            audioPlayer.currentTime = 0;
+            playSong();
             return;
         }
 
-        const searchTerm = searchInput.value.trim();
+        currentTrackIndex++;
+        if (currentTrackIndex >= currentPlaylist.length) {
+            if (repeatState === 1 || repeatState === 2) { 
+                currentTrackIndex = 0; // Loop playlist
+            } else {
+                pauseSong(); // Fim da playlist
+                audioPlayer.currentTime = 0;
+                return;
+            }
+        }
+        loadTrack(currentPlaylist[currentTrackIndex]);
+        playSong();
+    }
+
+    // --- REPETIR / FILA / JANELA FLUTUANTE ---
+    function toggleRepeat() {
+        repeatState = (repeatState + 1) % 3; 
+        const icon = repeatState === 2 ? 'fa-repeat-1' : 'fa-repeat'; // Tenta usar ícone com '1'
+        // Fallback visual se o ícone '1' não carregar: verde para ambos, mas no console sabemos o estado
+        const html = `<i class="fas ${repeatState === 2 ? 'fa-undo' : 'fa-repeat'}"></i>`; 
+        // Nota: fa-undo usado como substituto visual para "repetir 1" se fa-repeat-1 falhar
         
-        // 1. Limpa o conteúdo principal
+        const finalIcon = repeatState === 2 ? '<i class="fas fa-repeat"></i><span style="font-size:10px;position:absolute;">1</span>' : '<i class="fas fa-repeat"></i>';
+
+        repeatBtn.innerHTML = finalIcon;
+        fpRepeatBtn.innerHTML = finalIcon;
+
+        if (repeatState === 0) {
+            repeatBtn.classList.remove('active');
+            fpRepeatBtn.classList.remove('active');
+        } else {
+            repeatBtn.classList.add('active');
+            fpRepeatBtn.classList.add('active');
+        }
+    }
+
+    function toggleQueue() {
+        isQueueOpen = !isQueueOpen;
+        queueSidebar.classList.toggle('hidden', !isQueueOpen);
+        queueBtn.classList.toggle('active', isQueueOpen);
+        if(isQueueOpen) renderQueue();
+    }
+
+    function renderQueue() {
+        queueList.innerHTML = '';
+        if(currentPlaylist.length === 0) {
+            queueList.innerHTML = '<p style="padding:15px; color:#aaa;">Fila vazia</p>';
+            return;
+        }
+        currentPlaylist.forEach((track, index) => {
+            const li = document.createElement('li');
+            li.className = `queue-item ${index === currentTrackIndex ? 'playing' : ''}`;
+            li.innerHTML = `
+                <img src="${track.capa}" class="queue-cover">
+                <div class="queue-info">
+                    <span class="queue-title">${track.title}</span>
+                    <span class="queue-artist">${track.artist}</span>
+                </div>
+                ${index === currentTrackIndex && isPlaying ? '<i class="fas fa-volume-up" style="color:#1DB954;margin-left:auto;"></i>' : ''}
+            `;
+            li.addEventListener('click', () => {
+                 if (index !== currentTrackIndex) {
+                    currentTrackIndex = index;
+                    loadTrack(currentPlaylist[currentTrackIndex]);
+                    playSong();
+                 }
+            });
+            queueList.appendChild(li);
+        });
+    }
+
+    function toggleFloatingPlayer() {
+        if (!audioPlayer.src) return;
+        isFloatingPlayerOpen = !isFloatingPlayerOpen;
+        floatingPlayer.classList.toggle('hidden', !isFloatingPlayerOpen);
+        document.getElementById('expand-icon').className = isFloatingPlayerOpen ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
+    }
+
+    // --- PROGRESSO ---
+    function updateProgress(e) {
+        const { duration, currentTime } = e.srcElement;
+        if (isNaN(duration)) return;
+        const p = (currentTime / duration) * 100;
+        progress.style.width = `${p}%`;
+        fpProgress.style.width = `${p}%`;
+        currentTimeEl.textContent = formatTime(currentTime);
+        fpCurrentTimeEl.textContent = formatTime(currentTime);
+        durationEl.textContent = formatTime(duration);
+        fpDurationEl.textContent = formatTime(duration);
+    }
+
+    function setProgress(e) {
+        const width = this.clientWidth;
+        const clickX = e.offsetX;
+        const duration = audioPlayer.duration;
+        audioPlayer.currentTime = (clickX / width) * duration;
+    }
+
+    function formatTime(s) {
+        const m = Math.floor(s / 60);
+        const sc = Math.floor(s % 60);
+        return `${m}:${sc < 10 ? '0' : ''}${sc}`;
+    }
+
+    // --- BUSCA ---
+    async function handleSearch(e) {
+        if (e.key !== 'Enter' || searchInput.value.trim() === '') return;
+        const term = searchInput.value.trim();
+        
+        // Limpa visualmente o main content mantendo a estrutura para recriar depois se precisar (reload)
+        // Mas para simplificar a busca substitui tudo temporariamente:
         mainContent.innerHTML = `
+            <header id="header-bar">
+                <div class="search-bar" id="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-input-field" value="${term}">
+                </div>
+                <h2>Resultados para "${term}"</h2>
+            </header>
             <section class="genre-section">
-                <h3>Resultados para "${searchTerm}"</h3>
-                <div class="track-grid" id="search-results-container">
+                <div class="track-grid" id="search-results">
                     <div class="loading">Carregando...</div>
                 </div>
             </section>
         `;
+        
+        // Reconecta o evento de busca no novo input
+        document.getElementById('search-input-field').addEventListener('keypress', handleSearch);
 
-        // 2. Busca e renderiza os novos resultados
-        const tracks = await fetchTracks(searchTerm, 'popularity_total', 20);
-        const searchResultsContainer = document.getElementById('search-results-container');
-        renderTracks(tracks, searchResultsContainer);
+        const tracks = await fetchTracks(term, 'popularity_total', 20);
+        renderTracks(tracks, document.getElementById('search-results'));
     }
 
-
-    // --- 6. INICIALIZAÇÃO E EVENTOS ---
-
-    /**
-     * Função principal: Carrega todas as seções de música
-     * e configura os eventos dos botões.
-     */
+    // --- INICIALIZAÇÃO ---
     async function initializeApp() {
-        // Busca e renderiza as 5 seções ao mesmo tempo
+        // Busca TODOS os gêneros originais
         Promise.all([
-            fetchTracks('', 'popularity_week', 10).then(tracks => renderTracks(tracks, trendingContainer)),
-            fetchTracks('rock', 'popularity_month', 10).then(tracks => renderTracks(tracks, rockContainer)),
-            fetchTracks('pop', 'popularity_month', 10).then(tracks => renderTracks(tracks, popContainer)),
-            fetchTracks('electronic', 'popularity_month', 10).then(tracks => renderTracks(tracks, electronicContainer)),
-            fetchTracks('hiphop', 'popularity_month', 10).then(tracks => renderTracks(tracks, hiphopContainer))
+            fetchTracks('', 'popularity_week', 10).then(t => renderTracks(t, trendingContainer)),
+            fetchTracks('rock', 'popularity_month', 10).then(t => renderTracks(t, rockContainer)),
+            fetchTracks('pop', 'popularity_month', 10).then(t => renderTracks(t, popContainer)),
+            fetchTracks('electronic', 'popularity_month', 10).then(t => renderTracks(t, electronicContainer)),
+            fetchTracks('hiphop', 'popularity_month', 10).then(t => renderTracks(t, hiphopContainer))
         ]);
 
-        // Configura todos os botões e controles
+        // Listeners
         playPauseBtn.addEventListener('click', handlePlayPause);
         prevBtn.addEventListener('click', prevSong);
-        nextBtn.addEventListener('click', nextSong);
-        
-        audioPlayer.addEventListener('timeupdate', updateProgress);
-        audioPlayer.addEventListener('ended', nextSong); // Toca a próxima ao acabar
+        nextBtn.addEventListener('click', () => nextSong(false));
+        repeatBtn.addEventListener('click', toggleRepeat);
+        queueBtn.addEventListener('click', toggleQueue);
         progressBar.addEventListener('click', setProgress);
-        
-        volumeSlider.addEventListener('input', setVolume);
+        volumeSlider.addEventListener('input', (e) => audioPlayer.volume = e.target.value);
+        miniPlayerClickArea.addEventListener('click', toggleFloatingPlayer);
 
+        fpPlayPauseBtn.addEventListener('click', handlePlayPause);
+        fpPrevBtn.addEventListener('click', prevSong);
+        fpNextBtn.addEventListener('click', () => nextSong(false));
+        fpRepeatBtn.addEventListener('click', toggleRepeat);
+        fpProgressBar.addEventListener('click', setProgress);
+        closeFpBtn.addEventListener('click', toggleFloatingPlayer);
+        closeQueueBtn.addEventListener('click', toggleQueue);
+
+        audioPlayer.addEventListener('timeupdate', updateProgress);
+        audioPlayer.addEventListener('ended', () => nextSong(true));
         searchInput.addEventListener('keypress', handleSearch);
     }
 
-    // Inicia a aplicação!
     initializeApp();
 });
