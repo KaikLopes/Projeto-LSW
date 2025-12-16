@@ -1,10 +1,22 @@
-/* === Meu Player Completo - Script JS === */
+/* === Meu Player Completo e Navegável - Script JS === */
 
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. CONSTANTES E ELEMENTOS ---
     const CLIENT_ID = '726b76ab'; 
     const API_BASE_URL = 'https://api.jamendo.com/v3.0';
+
+    // Navegação e Views (NOVOS)
+    const homeView = document.getElementById('home-view');
+    const searchView = document.getElementById('search-view');
+    const linkHome = document.getElementById('link-home'); // Botão Início na Sidebar
+    const appLogo = document.getElementById('app-logo');   // Logo na Sidebar
+    const backHomeBtn = document.getElementById('back-home-btn'); // Botão Voltar na busca
+
+    // Containers de Busca
+    const searchInput = document.getElementById('search-input-field');
+    const searchResultsContainer = document.getElementById('search-results-container');
+    const searchHeaderTitle = document.getElementById('search-header-title');
 
     // Player Elements (Mini)
     const audioPlayer = document.getElementById('audio-player');
@@ -43,10 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const queueList = document.getElementById('queue-list');
     const closeQueueBtn = document.getElementById('close-queue-btn');
 
-    // Search & Containers (TODOS os containeres aqui)
-    const searchInput = document.getElementById('search-input-field');
-    const mainContent = document.getElementById('content-area');
-    
+    // Containers da Home
     const trendingContainer = document.getElementById('top-trending-container');
     const rockContainer = document.getElementById('rock-container');
     const popContainer = document.getElementById('pop-container');
@@ -58,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPlaylist = []; 
     let currentTrackIndex = 0; 
     let isPlaying = false;
-    let repeatState = 0; // 0=Off, 1=All, 2=One
+    let repeatState = 0; 
     let isQueueOpen = false;
     let isFloatingPlayerOpen = false;
 
@@ -104,19 +113,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 3. CONTROLES DE ÁUDIO ---
     function loadTrack(track) {
-        // Mini
         currentTitle.textContent = track.title;
         currentArtist.textContent = track.artist;
         currentCover.src = track.capa;
-        // Floating
         fpTitle.textContent = track.title;
         fpArtist.textContent = track.artist;
         fpCover.src = track.capa;
-        
         audioPlayer.src = track.arquivo;
         progress.style.width = '0%'; fpProgress.style.width = '0%';
-        
-        // Atualiza a fila se estiver aberta para mostrar qual está tocando
         if(isQueueOpen) renderQueue();
     }
 
@@ -153,20 +157,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function nextSong(isAuto = false) {
         if (currentPlaylist.length === 0) return;
-        
-        // Repetir Uma (Estado 2) e for automático (fim da musica)
         if (repeatState === 2 && isAuto) {
             audioPlayer.currentTime = 0;
             playSong();
             return;
         }
-
         currentTrackIndex++;
         if (currentTrackIndex >= currentPlaylist.length) {
             if (repeatState === 1 || repeatState === 2) { 
-                currentTrackIndex = 0; // Loop playlist
+                currentTrackIndex = 0; 
             } else {
-                pauseSong(); // Fim da playlist
+                pauseSong(); 
                 audioPlayer.currentTime = 0;
                 return;
             }
@@ -175,19 +176,11 @@ document.addEventListener('DOMContentLoaded', () => {
         playSong();
     }
 
-    // --- REPETIR / FILA / JANELA FLUTUANTE ---
     function toggleRepeat() {
         repeatState = (repeatState + 1) % 3; 
-        const icon = repeatState === 2 ? 'fa-repeat-1' : 'fa-repeat'; // Tenta usar ícone com '1'
-        // Fallback visual se o ícone '1' não carregar: verde para ambos, mas no console sabemos o estado
-        const html = `<i class="fas ${repeatState === 2 ? 'fa-undo' : 'fa-repeat'}"></i>`; 
-        // Nota: fa-undo usado como substituto visual para "repetir 1" se fa-repeat-1 falhar
-        
         const finalIcon = repeatState === 2 ? '<i class="fas fa-repeat"></i><span style="font-size:10px;position:absolute;">1</span>' : '<i class="fas fa-repeat"></i>';
-
         repeatBtn.innerHTML = finalIcon;
         fpRepeatBtn.innerHTML = finalIcon;
-
         if (repeatState === 0) {
             repeatBtn.classList.remove('active');
             fpRepeatBtn.classList.remove('active');
@@ -239,7 +232,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('expand-icon').className = isFloatingPlayerOpen ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
     }
 
-    // --- PROGRESSO ---
     function updateProgress(e) {
         const { duration, currentTime } = e.srcElement;
         if (isNaN(duration)) return;
@@ -265,38 +257,39 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${m}:${sc < 10 ? '0' : ''}${sc}`;
     }
 
-    // --- BUSCA ---
+
+    // --- 4. FUNÇÕES DE NAVEGAÇÃO E BUSCA (O segredo está aqui!) ---
+
+    // Função para mostrar a Home e esconder a Busca
+    function showHome(e) {
+        if (e) e.preventDefault(); // Evita comportamento padrão de link se houver
+        searchView.style.display = 'none';
+        homeView.style.display = 'block';
+        searchInput.value = ''; // Limpa o campo de busca
+    }
+
+    // Função para mostrar a Busca e esconder a Home
     async function handleSearch(e) {
         if (e.key !== 'Enter' || searchInput.value.trim() === '') return;
         const term = searchInput.value.trim();
         
-        // Limpa visualmente o main content mantendo a estrutura para recriar depois se precisar (reload)
-        // Mas para simplificar a busca substitui tudo temporariamente:
-        mainContent.innerHTML = `
-            <header id="header-bar">
-                <div class="search-bar" id="search-container">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input" id="search-input-field" value="${term}">
-                </div>
-                <h2>Resultados para "${term}"</h2>
-            </header>
-            <section class="genre-section">
-                <div class="track-grid" id="search-results">
-                    <div class="loading">Carregando...</div>
-                </div>
-            </section>
-        `;
-        
-        // Reconecta o evento de busca no novo input
-        document.getElementById('search-input-field').addEventListener('keypress', handleSearch);
+        // Troca as telas
+        homeView.style.display = 'none';
+        searchView.style.display = 'block';
 
+        // Atualiza título e limpa resultados antigos
+        searchHeaderTitle.textContent = `Resultados para "${term}"`;
+        searchResultsContainer.innerHTML = '<div class="loading">Buscando...</div>';
+
+        // Busca e renderiza
         const tracks = await fetchTracks(term, 'popularity_total', 20);
-        renderTracks(tracks, document.getElementById('search-results'));
+        renderTracks(tracks, searchResultsContainer);
     }
 
-    // --- INICIALIZAÇÃO ---
+
+    // --- INICIALIZAÇÃO E EVENTOS ---
     async function initializeApp() {
-        // Busca TODOS os gêneros originais
+        // Carrega Home
         Promise.all([
             fetchTracks('', 'popularity_week', 10).then(t => renderTracks(t, trendingContainer)),
             fetchTracks('rock', 'popularity_month', 10).then(t => renderTracks(t, rockContainer)),
@@ -305,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchTracks('hiphop', 'popularity_month', 10).then(t => renderTracks(t, hiphopContainer))
         ]);
 
-        // Listeners
+        // Listeners Padrão
         playPauseBtn.addEventListener('click', handlePlayPause);
         prevBtn.addEventListener('click', prevSong);
         nextBtn.addEventListener('click', () => nextSong(false));
@@ -325,7 +318,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         audioPlayer.addEventListener('timeupdate', updateProgress);
         audioPlayer.addEventListener('ended', () => nextSong(true));
+        
+        // NOVOS LISTENERS PARA NAVEGAÇÃO
         searchInput.addEventListener('keypress', handleSearch);
+        
+        // Aqui está a correção que você pediu:
+        linkHome.addEventListener('click', showHome); // Clicar em "Início"
+        appLogo.addEventListener('click', showHome);  // Clicar no Logo "MeuPlayer"
+        backHomeBtn.addEventListener('click', showHome); // Clicar no botão voltar (se quiser usar)
     }
 
     initializeApp();

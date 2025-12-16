@@ -32,48 +32,60 @@
         </aside>
 
         <main class="main-content" id="content-area">
-            <header id="header-bar">
-                <div class="search-bar" id="search-container">
-                    <i class="fas fa-search search-icon" id="search-icon"></i>
-                    <input type="text" class="search-input" id="search-input-field" placeholder="O que você quer ouvir?">
-                </div>
-                <h2 id="header-title">Músicas para você</h2>
-            </header>
+    
+    <div id="home-view">
+        <header id="header-bar">
+            <div class="search-bar" id="search-container">
+                <i class="fas fa-search search-icon" id="search-icon"></i>
+                <input type="text" class="search-input" id="search-input-field" placeholder="O que você quer ouvir?">
+            </div>
+            <h2 id="header-title">Músicas para você</h2>
+        </header>
 
-            <section class="genre-section" id="section-trending">
-                <h3 id="title-trending">Top 10 em Alta</h3>
-                <div class="track-grid" id="top-trending-container">
-                    <div class="loading">Carregando...</div>
-                </div>
-            </section>
+        <section class="genre-section" id="section-trending">
+            <h3 id="title-trending">Top 10 em Alta</h3>
+            <div class="track-grid" id="top-trending-container">
+                <div class="loading">Carregando...</div>
+            </div>
+        </section>
 
-            <section class="genre-section" id="section-rock">
-                <h3 id="title-rock">Rock</h3>
-                <div class="track-grid" id="rock-container">
-                    <div class="loading">Carregando...</div>
-                </div>
-            </section>
+        <section class="genre-section" id="section-rock">
+            <h3 id="title-rock">Rock</h3>
+            <div class="track-grid" id="rock-container">
+                <div class="loading">Carregando...</div>
+            </div>
+        </section>
 
-            <section class="genre-section" id="section-pop">
-                <h3 id="title-pop">Pop</h3>
-                <div class="track-grid" id="pop-container">
-                    <div class="loading">Carregando...</div>
-                </div>
-            </section>
+        <section class="genre-section" id="section-pop">
+            <h3 id="title-pop">Pop</h3>
+            <div class="track-grid" id="pop-container">
+                <div class="loading">Carregando...</div>
+            </div>
+        </section>
 
-            <section class="genre-section" id="section-electronic">
-                <h3 id="title-electronic">Electronic</h3>
-                <div class="track-grid" id="electronic-container">
-                    <div class="loading">Carregando...</div>
-                </div>
-            </section>
+        <section class="genre-section" id="section-electronic">
+            <h3 id="title-electronic">Electronic</h3>
+            <div class="track-grid" id="electronic-container">
+                <div class="loading">Carregando...</div>
+            </div>
+        </section>
 
-            <section class="genre-section" id="section-hiphop">
-                <h3 id="title-hiphop">HipHop</h3>
-                <div class="track-grid" id="hiphop-container">
-                    <div class="loading">Carregando...</div>
+        <section class="genre-section" id="section-hiphop">
+            <h3 id="title-hiphop">HipHop</h3>
+            <div class="track-grid" id="hiphop-container">
+                <div class="loading">Carregando...</div>
+            </div>
+        </section>
+    </div> <div id="search-view" style="display: none;">
+        <header>
+            <h2 id="search-header-title">Resultados da Busca</h2>
+            <button id="back-home-btn" class="control-btn" style="margin-top: 10px; font-size: 14px;">Voltar ao Início</button>
+        </header>
+        <section class="genre-section">
+            <div class="track-grid" id="search-results-container">
                 </div>
-            </section>
+        </section>
+    </div>
         </main>
     </div>
 
