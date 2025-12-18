@@ -266,6 +266,11 @@ document.addEventListener('DOMContentLoaded', () => {
         searchView.style.display = 'none';
         homeView.style.display = 'block';
         searchInput.value = ''; // Limpa o campo de busca
+        
+        // Tenta rolar o container pai, o próprio elemento e a janela (garante que suba em qualquer layout)
+        if (homeView.parentElement) homeView.parentElement.scrollTo({ top: 0, behavior: 'smooth' });
+        homeView.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // Função para mostrar a Busca e esconder a Home
