@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const linkFavorites = document.getElementById('link-favorites'); // Botão Favoritas
     const linkSearch = document.getElementById('link-search'); // Botão Pesquisar
     const linkFeedback = document.getElementById('link-feedback'); // Botão Feedback
+    const linkContact = document.getElementById('link-contact'); // Botão Contate-nos
     const appLogo = document.getElementById('app-logo');   // Logo na Sidebar
     const backHomeBtn = document.getElementById('back-home-btn'); // Botão Voltar na busca
 
@@ -70,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendFeedbackBtn = document.getElementById('send-feedback-btn');
     const feedbackStars = document.querySelectorAll('.star-rating i');
     const feedbackText = document.getElementById('feedback-text');
+    const contactPopover = document.getElementById('contact-popover');
 
     // Containers da Home
     const trendingContainer = document.getElementById('top-trending-container');
@@ -426,7 +428,13 @@ document.addEventListener('DOMContentLoaded', () => {
         linkFeedback.addEventListener('click', openFeedback);
         closeFeedback.addEventListener('click', closeFeedbackModal);
         sendFeedbackBtn.addEventListener('click', sendFeedback);
-        window.addEventListener('click', (e) => { if (e.target === feedbackModal) closeFeedbackModal(); });
+        window.addEventListener('click', (e) => { 
+            if (e.target === feedbackModal) closeFeedbackModal();
+            // Fecha o popover se clicar fora
+            if (contactPopover && !contactPopover.classList.contains('hidden') && !contactPopover.contains(e.target) && e.target !== linkContact) {
+                contactPopover.classList.add('hidden');
+            }
+        });
 
         feedbackStars.forEach(star => {
             star.addEventListener('click', handleStarClick);
@@ -449,6 +457,17 @@ document.addEventListener('DOMContentLoaded', () => {
             showHome(e);
             searchInput.focus();
         });
+
+        // Listener Contate-nos
+        if (linkContact) {
+            linkContact.addEventListener('click', (e) => {
+                e.preventDefault();
+                const rect = linkContact.getBoundingClientRect();
+                contactPopover.style.top = `${rect.top}px`;
+                contactPopover.style.left = `${rect.right + 10}px`;
+                contactPopover.classList.toggle('hidden');
+            });
+        }
     }
 
     initializeApp();
