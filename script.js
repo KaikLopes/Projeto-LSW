@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const linkFavorites = document.getElementById('link-favorites'); // Botão Favoritas
     const linkSearch = document.getElementById('link-search'); // Botão Pesquisar
     const linkFeedback = document.getElementById('link-feedback'); // Botão Feedback
+    const linkTheme = document.getElementById('link-theme'); // Botão Tema
     const linkContact = document.getElementById('link-contact'); // Botão Contate-nos
     const appLogo = document.getElementById('app-logo');   // Logo na Sidebar
     const backHomeBtn = document.getElementById('back-home-btn'); // Botão Voltar na busca
@@ -72,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedbackStars = document.querySelectorAll('.star-rating i');
     const feedbackText = document.getElementById('feedback-text');
     const contactPopover = document.getElementById('contact-popover');
+    const themePopover = document.getElementById('theme-popover');
 
     // Containers da Home
     const trendingContainer = document.getElementById('top-trending-container');
@@ -393,6 +395,23 @@ document.addEventListener('DOMContentLoaded', () => {
         feedbackText.value = '';
     }
 
+    // --- FUNÇÕES DE TEMA ---
+    function handleThemeClick(e) {
+        e.preventDefault();
+        const rect = linkTheme.getBoundingClientRect();
+        themePopover.style.top = `${rect.top}px`;
+        themePopover.style.left = `${rect.right + 10}px`;
+        themePopover.classList.toggle('hidden');
+    }
+
+    function setTheme(e) {
+        e.preventDefault();
+        const theme = e.target.dataset.theme;
+        const htmlRoot = document.getElementById('html-root');
+        htmlRoot.setAttribute('data-theme', theme);
+        themePopover.classList.add('hidden');
+    }
+
     // --- INICIALIZAÇÃO E EVENTOS ---
     async function initializeApp() {
         // Carrega Home
@@ -434,6 +453,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (contactPopover && !contactPopover.classList.contains('hidden') && !contactPopover.contains(e.target) && !linkContact.contains(e.target)) {
                 contactPopover.classList.add('hidden');
             }
+            // Fecha o popover de tema se clicar fora
+            if (themePopover && !themePopover.classList.contains('hidden') && !themePopover.contains(e.target) && !linkTheme.contains(e.target)) {
+                themePopover.classList.add('hidden');
+            }
         });
 
         feedbackStars.forEach(star => {
@@ -468,6 +491,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 contactPopover.classList.toggle('hidden');
             });
         }
+
+        // Listener Tema
+        linkTheme.addEventListener('click', handleThemeClick);
+        themePopover.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', setTheme);
+        });
     }
 
     initializeApp();

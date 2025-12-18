@@ -3,11 +3,24 @@
 
 :root {
     --bg-black: #121212;
+    --bg-sidebar: #000000;
     --bg-dark-gray: #181818;
     --bg-light-gray: #282828;
+    --bg-gradient-top: #2e2e2e;
     --text-primary: #FFFFFF;
     --text-secondary: #B3B3B3;
     --spotify-green: #1DB954;
+}
+
+/* Tema Claro */
+html[data-theme='light'] {
+    --bg-black: #F0F0F0;
+    --bg-sidebar: #FFFFFF;
+    --bg-dark-gray: #FFFFFF;
+    --bg-light-gray: #E5E5E5;
+    --bg-gradient-top: #DCDCDC;
+    --text-primary: #000000;
+    --text-secondary: #535353;
 }
 
 /* Reset Básico */
@@ -60,7 +73,7 @@ ul {
     top: 0;
     left: 0;
     z-index: 1000; /* Garante que fique acima do conteúdo principal */
-    background-color: #000000;
+    background-color: var(--bg-sidebar);
     padding: 24px;
     display: flex;
     flex-direction: column;
@@ -133,7 +146,7 @@ ul {
 .main-content {
     flex: 1;
     margin-left: 70px; /* Espaço reservado para a sidebar recolhida */
-    background: linear-gradient(to bottom, #2e2e2e, var(--bg-black));
+    background: linear-gradient(to bottom, var(--bg-gradient-top), var(--bg-black));
     padding: 24px 32px;
     overflow-y: auto;
     /* Permite rolar o conteúdo central */
@@ -148,7 +161,7 @@ header {
 }
 
 .search-bar {
-    background-color: var(--text-primary);
+    background-color: var(--bg-dark-gray);
     border-radius: 500px;
     padding: 10px 16px;
     display: flex;
@@ -162,7 +175,7 @@ header {
 }
 
 .search-icon {
-    color: var(--bg-black);
+    color: var(--text-secondary);
     margin-right: 10px;
 }
 
@@ -171,6 +184,7 @@ header {
     outline: none;
     font-family: inherit;
     font-weight: 500;
+    color: var(--text-primary);
     width: 100%;
 }
 
