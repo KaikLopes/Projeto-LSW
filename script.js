@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchView = document.getElementById('search-view');
     const favoritesView = document.getElementById('favorites-view');
     const linkHome = document.getElementById('link-home'); // Botão Início na Sidebar
+    const sidebar = document.getElementById('sidebar-menu'); // Sidebar
     const linkFavorites = document.getElementById('link-favorites'); // Botão Favoritas
     const linkSearch = document.getElementById('link-search'); // Botão Pesquisar
     const linkFeedback = document.getElementById('link-feedback'); // Botão Feedback
@@ -395,6 +396,15 @@ document.addEventListener('DOMContentLoaded', () => {
         feedbackText.value = '';
     }
 
+    // --- FUNÇÃO AUXILIAR PARA SIDEBAR ---
+    function updateSidebarState() {
+        const isContactOpen = !contactPopover.classList.contains('hidden');
+        const isThemeOpen = !themePopover.classList.contains('hidden');
+        
+        if (isContactOpen || isThemeOpen) sidebar.classList.add('expanded');
+        else sidebar.classList.remove('expanded');
+    }
+
     // --- FUNÇÕES DE TEMA ---
     function handleThemeClick(e) {
         e.preventDefault();
@@ -402,6 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
         themePopover.style.top = `${rect.top}px`;
         themePopover.style.left = `${rect.right + 10}px`;
         themePopover.classList.toggle('hidden');
+        updateSidebarState();
     }
 
     function setTheme(e) {
@@ -410,6 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const htmlRoot = document.getElementById('html-root');
         htmlRoot.setAttribute('data-theme', theme);
         themePopover.classList.add('hidden');
+        updateSidebarState();
     }
 
     // --- INICIALIZAÇÃO E EVENTOS ---
@@ -452,10 +464,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Fecha o popover se clicar fora
             if (contactPopover && !contactPopover.classList.contains('hidden') && !contactPopover.contains(e.target) && !linkContact.contains(e.target)) {
                 contactPopover.classList.add('hidden');
+                updateSidebarState();
             }
             // Fecha o popover de tema se clicar fora
             if (themePopover && !themePopover.classList.contains('hidden') && !themePopover.contains(e.target) && !linkTheme.contains(e.target)) {
                 themePopover.classList.add('hidden');
+                updateSidebarState();
             }
         });
 
@@ -489,6 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 contactPopover.style.top = `${rect.top}px`;
                 contactPopover.style.left = `${rect.right + 10}px`;
                 contactPopover.classList.toggle('hidden');
+                updateSidebarState();
             });
         }
 
