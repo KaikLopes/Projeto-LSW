@@ -9,7 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Navegação e Views (NOVOS)
     const homeView = document.getElementById('home-view');
     const searchView = document.getElementById('search-view');
+    const favoritesView = document.getElementById('favorites-view');
     const linkHome = document.getElementById('link-home'); // Botão Início na Sidebar
+    const linkFavorites = document.getElementById('link-favorites'); // Botão Favoritas
     const appLogo = document.getElementById('app-logo');   // Logo na Sidebar
     const backHomeBtn = document.getElementById('back-home-btn'); // Botão Voltar na busca
 
@@ -17,9 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input-field');
     const searchResultsContainer = document.getElementById('search-results-container');
     const searchHeaderTitle = document.getElementById('search-header-title');
+    
+    // Container Favoritas
+    const favoritesContainer = document.getElementById('favorites-container');
 
     // Player Elements (Mini)
     const audioPlayer = document.getElementById('audio-player');
+    const likeBtn = document.getElementById('like-btn');
     const playPauseBtn = document.getElementById('play-pause-btn');
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
@@ -42,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fpTitle = document.getElementById('fp-title');
     const fpArtist = document.getElementById('fp-artist');
     const fpPlayPauseBtn = document.getElementById('fp-play-pause-btn');
+    const fpLikeBtn = document.getElementById('fp-like-btn');
     const fpPrevBtn = document.getElementById('fp-prev-btn');
     const fpNextBtn = document.getElementById('fp-next-btn');
     const fpRepeatBtn = document.getElementById('fp-repeat-btn');
@@ -70,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let repeatState = 0; 
     let isQueueOpen = false;
     let isFloatingPlayerOpen = false;
+    let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
 
     // --- 2. API ---
@@ -122,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         audioPlayer.src = track.arquivo;
         progress.style.width = '0%'; fpProgress.style.width = '0%';
         if(isQueueOpen) renderQueue();
+        updateLikeButton();
     }
 
     function playSong() {
@@ -187,6 +196,36 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             repeatBtn.classList.add('active');
             fpRepeatBtn.classList.add('active');
+        }
+    }
+
+    function updateLikeButton() {
+        if (currentPlaylist.length === 0) return;
+        const currentTrack = currentPlaylist[currentTrackIndex];
+        const isFav = favorites.some(fav => fav.id === currentTrack.id);
+        
+        const iconClass = isFav ? 'fas fa-heart' : 'far fa-heart';
+        const color = isFav ? '#1DB954' : 'inherit'; 
+        
+        likeBtn.innerHTML = `<i class="${iconClass}" style="color: ${color}"></i>`;
+        fpLikeBtn.innerHTML = `<i class="${iconClass}" style="color: ${color}"></i>`;
+    }
+
+    function toggleLike() {
+        if (currentPlaylist.length === 0) return;
+        const currentTrack = currentPlaylist[currentTrackIndex];
+        const index = favorites.findIndex(fav => fav.id === currentTrack.id);
+
+        if (index === -1) {
+            favorites.push(currentTrack);
+        } else {
+            favorites.splice(index, 1);
+        }
+        
+        localStorage.setItem('favorites', JSON.stringify(favorites));
+        updateLikeButton();
+        if (favoritesView.style.display === 'block') {
+            renderFavorites();
         }
     }
 
@@ -264,6 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function showHome(e) {
         if (e) e.preventDefault(); // Evita comportamento padrão de link se houver
         searchView.style.display = 'none';
+        favoritesView.style.display = 'none';
         homeView.style.display = 'block';
         searchInput.value = ''; // Limpa o campo de busca
         
@@ -281,6 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Troca as telas
         homeView.style.display = 'none';
         searchView.style.display = 'block';
+        favoritesView.style.display = 'none';
 
         // Atualiza título e limpa resultados antigos
         searchHeaderTitle.textContent = `Resultados para "${term}"`;
@@ -291,6 +332,17 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTracks(tracks, searchResultsContainer);
     }
 
+    function showFavorites(e) {
+        if (e) e.preventDefault();
+        homeView.style.display = 'none';
+        searchView.style.display = 'none';
+        favoritesView.style.display = 'block';
+        renderFavorites();
+    }
+
+    function renderFavorites() {
+        renderTracks(favorites, favoritesContainer);
+    }
 
     // --- INICIALIZAÇÃO E EVENTOS ---
     async function initializeApp() {
@@ -304,6 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ]);
 
         // Listeners Padrão
+        likeBtn.addEventListener('click', toggleLike);
         playPauseBtn.addEventListener('click', handlePlayPause);
         prevBtn.addEventListener('click', prevSong);
         nextBtn.addEventListener('click', () => nextSong(false));
@@ -313,6 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
         volumeSlider.addEventListener('input', (e) => audioPlayer.volume = e.target.value);
         miniPlayerClickArea.addEventListener('click', toggleFloatingPlayer);
 
+        fpLikeBtn.addEventListener('click', toggleLike);
         fpPlayPauseBtn.addEventListener('click', handlePlayPause);
         fpPrevBtn.addEventListener('click', prevSong);
         fpNextBtn.addEventListener('click', () => nextSong(false));
@@ -331,6 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
         linkHome.addEventListener('click', showHome); // Clicar em "Início"
         appLogo.addEventListener('click', showHome);  // Clicar no Logo "MeuPlayer"
         backHomeBtn.addEventListener('click', showHome); // Clicar no botão voltar (se quiser usar)
+        linkFavorites.addEventListener('click', showFavorites); // Clicar em "Minhas Favoritas"
     }
 
     initializeApp();

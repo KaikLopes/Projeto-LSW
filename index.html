@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR" id="html-root">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,84 +9,101 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 </head>
+
 <body id="body-content">
     <div class="container" id="main-container">
         <aside class="sidebar" id="sidebar-menu">
-            <div id="sidebar-top-group"> 
+            <div id="sidebar-top-group">
                 <h1 class="logo" id="app-logo">MeuPlayer</h1>
                 <nav class="primary-nav" id="nav-primary">
                     <ul id="nav-list-primary">
                         <li id="nav-item-home"><a href="#" id="link-home"><i class="fas fa-home"></i> Início</a></li>
-                        <li id="nav-item-profile"><a href="#" id="link-profile"><i class="fas fa-user"></i> Meu Perfil</a></li>
+                        <li id="nav-item-profile"><a href="#" id="link-profile"><i class="fas fa-user"></i> Meu
+                                Perfil</a></li>
                     </ul>
                 </nav>
             </div>
 
-            <div id="sidebar-bottom-group"> 
+            <div id="sidebar-bottom-group">
                 <nav class="secondary-nav" id="nav-secondary">
                     <ul id="nav-list-secondary">
-                        <li id="nav-item-library"><a href="#" id="link-library"><i class="fas fa-book"></i> Sua Biblioteca</a></li>
-                        <li id="nav-item-settings"><a href="#" id="link-settings"><i class="fas fa-cog"></i> Configurações</a></li>
+                        <li id="nav-item-favorites"><a href="#" id="link-favorites"><i class="fas fa-heart"></i> Minhas
+                                Favoritas</a></li>
+                        <li id="nav-item-library"><a href="#" id="link-library"><i class="fas fa-book"></i> Sua
+                                Biblioteca</a></li>
+                        <li id="nav-item-settings"><a href="#" id="link-settings"><i class="fas fa-cog"></i>
+                                Configurações</a></li>
                     </ul>
                 </nav>
             </div>
         </aside>
 
         <main class="main-content" id="content-area">
-    
-    <div id="home-view">
-        <header id="header-bar">
-            <div class="search-bar" id="search-container">
-                <i class="fas fa-search search-icon" id="search-icon"></i>
-                <input type="text" class="search-input" id="search-input-field" placeholder="O que você quer ouvir?">
-            </div>
-            <h2 id="header-title">Músicas para você</h2>
-        </header>
 
-        <section class="genre-section" id="section-trending">
-            <h3 id="title-trending">Top 10 em Alta</h3>
-            <div class="track-grid" id="top-trending-container">
-                <div class="loading">Carregando...</div>
-            </div>
-        </section>
+            <div id="home-view">
+                <header id="header-bar">
+                    <div class="search-bar" id="search-container">
+                        <i class="fas fa-search search-icon" id="search-icon"></i>
+                        <input type="text" class="search-input" id="search-input-field"
+                            placeholder="O que você quer ouvir?">
+                    </div>
+                    <h2 id="header-title">Músicas para você</h2>
+                </header>
 
-        <section class="genre-section" id="section-rock">
-            <h3 id="title-rock">Rock</h3>
-            <div class="track-grid" id="rock-container">
-                <div class="loading">Carregando...</div>
-            </div>
-        </section>
+                <section class="genre-section" id="section-trending">
+                    <h3 id="title-trending">Top 10 em Alta</h3>
+                    <div class="track-grid" id="top-trending-container">
+                        <div class="loading">Carregando...</div>
+                    </div>
+                </section>
 
-        <section class="genre-section" id="section-pop">
-            <h3 id="title-pop">Pop</h3>
-            <div class="track-grid" id="pop-container">
-                <div class="loading">Carregando...</div>
-            </div>
-        </section>
+                <section class="genre-section" id="section-rock">
+                    <h3 id="title-rock">Rock</h3>
+                    <div class="track-grid" id="rock-container">
+                        <div class="loading">Carregando...</div>
+                    </div>
+                </section>
 
-        <section class="genre-section" id="section-electronic">
-            <h3 id="title-electronic">Electronic</h3>
-            <div class="track-grid" id="electronic-container">
-                <div class="loading">Carregando...</div>
-            </div>
-        </section>
+                <section class="genre-section" id="section-pop">
+                    <h3 id="title-pop">Pop</h3>
+                    <div class="track-grid" id="pop-container">
+                        <div class="loading">Carregando...</div>
+                    </div>
+                </section>
 
-        <section class="genre-section" id="section-hiphop">
-            <h3 id="title-hiphop">HipHop</h3>
-            <div class="track-grid" id="hiphop-container">
-                <div class="loading">Carregando...</div>
+                <section class="genre-section" id="section-electronic">
+                    <h3 id="title-electronic">Electronic</h3>
+                    <div class="track-grid" id="electronic-container">
+                        <div class="loading">Carregando...</div>
+                    </div>
+                </section>
+
+                <section class="genre-section" id="section-hiphop">
+                    <h3 id="title-hiphop">HipHop</h3>
+                    <div class="track-grid" id="hiphop-container">
+                        <div class="loading">Carregando...</div>
+                    </div>
+                </section>
             </div>
-        </section>
-    </div> <div id="search-view" style="display: none;">
-        <header>
-            <h2 id="search-header-title">Resultados da Busca</h2>
-            <button id="back-home-btn" class="control-btn" style="margin-top: 10px; font-size: 14px;">Voltar ao Início</button>
-        </header>
-        <section class="genre-section">
-            <div class="track-grid" id="search-results-container">
-                </div>
-        </section>
-    </div>
+            <div id="search-view" style="display: none;">
+                <header>
+                    <h2 id="search-header-title">Resultados da Busca</h2>
+                    <button id="back-home-btn" class="control-btn" style="margin-top: 10px; font-size: 14px;">Voltar ao
+                        Início</button>
+                </header>
+                <section class="genre-section">
+                    <div class="track-grid" id="search-results-container">
+                    </div>
+                </section>
+            </div>
+            <div id="favorites-view" style="display: none;">
+                <header>
+                    <h2 id="favorites-header-title">Minhas Favoritas</h2>
+                </header>
+                <section class="genre-section">
+                    <div class="track-grid" id="favorites-container"></div>
+                </section>
+            </div>
         </main>
     </div>
 
@@ -98,7 +116,7 @@
             <h2 id="fp-title">Título</h2>
             <p id="fp-artist">Artista</p>
         </div>
-        
+
         <div class="progress-container">
             <span id="fp-current-time">0:00</span>
             <div id="fp-progress-bar" class="progress-bar">
@@ -112,7 +130,7 @@
             <button id="fp-prev-btn" class="control-btn"><i class="fas fa-step-backward"></i></button>
             <button id="fp-play-pause-btn" class="control-btn play-btn big-play"><i class="fas fa-play"></i></button>
             <button id="fp-next-btn" class="control-btn"><i class="fas fa-step-forward"></i></button>
-            <button class="control-btn icon-only" style="opacity: 0; pointer-events: none;"><i class="fas fa-random"></i></button>
+            <button id="fp-like-btn" class="control-btn icon-only"><i class="far fa-heart"></i></button>
         </div>
     </div>
 
@@ -126,17 +144,21 @@
 
     <footer class="player-bar" id="player-footer">
         <div class="song-info" id="mini-player-click-area" style="cursor: pointer;">
-            <img id="current-cover" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMyIDM4QzI1LjM3MjYgMzggMjAgNDMuMzcyNiAyMCA1MEMyMCA1Ni42Mjc0IDI1LjM3MjYgNjIgMzIgNjJDMzguNjI3NCA2MiA0NCA1Ni42Mjc0IDQ0IDUwQzQ0IDQzLjM3MjYgMzguNjI3NCAzOCAzMiAzOFoiIGZpbGw9IiM1MzUzNTMiLz4KPC9zdmc+" alt="Capa">
+            <img id="current-cover"
+                src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMyIDM4QzI1LjM3MjYgMzggMjAgNDMuMzcyNiAyMCA1MEMyMCA1Ni42Mjc0IDI1LjM3MjYgNjIgMzIgNjJDMzguNjI3NCA2MiA0NCA1Ni42Mjc0IDQ0IDUwQzQ0IDQzLjM3MjYgMzguNjI3NCAzOCAzMiAzOFoiIGZpbGw9IiM1MzUzNTMiLz4KPC9zdmc+"
+                alt="Capa">
             <div id="mini-song-details">
                 <h3 id="current-title">Selecione uma música</h3>
                 <p id="current-artist">-</p>
             </div>
-            <i class="fas fa-chevron-up" id="expand-icon" style="margin-left: 15px; color: #b3b3b3; font-size: 14px;"></i>
+            <i class="fas fa-chevron-up" id="expand-icon"
+                style="margin-left: 15px; color: #b3b3b3; font-size: 14px;"></i>
         </div>
 
         <div class="player-controls-container">
             <div class="player-controls">
                 <audio id="audio-player"></audio>
+                <button id="like-btn" class="control-btn icon-only"><i class="far fa-heart"></i></button>
                 <button id="repeat-btn" class="control-btn icon-only"><i class="fas fa-repeat"></i></button>
                 <button id="prev-btn" class="control-btn"><i class="fas fa-step-backward"></i></button>
                 <button id="play-pause-btn" class="control-btn play-btn"><i class="fas fa-play"></i></button>
@@ -151,7 +173,7 @@
                 <span id="duration">0:00</span>
             </div>
         </div>
-        
+
         <div class="volume-container">
             <i class="fas fa-volume-down" id="mini-volume-icon"></i>
             <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1">
@@ -160,4 +182,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>
