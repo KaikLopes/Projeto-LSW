@@ -431,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('click', (e) => { 
             if (e.target === feedbackModal) closeFeedbackModal();
             // Fecha o popover se clicar fora
-            if (contactPopover && !contactPopover.classList.contains('hidden') && !contactPopover.contains(e.target) && e.target !== linkContact) {
+            if (contactPopover && !contactPopover.classList.contains('hidden') && !contactPopover.contains(e.target) && !linkContact.contains(e.target)) {
                 contactPopover.classList.add('hidden');
             }
         });
