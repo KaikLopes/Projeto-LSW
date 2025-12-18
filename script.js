@@ -1,5 +1,3 @@
-/* === Meu Player Completo e Navegável - Script JS === */
-
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. CONSTANTES E ELEMENTOS ---
@@ -312,17 +310,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- 4. FUNÇÕES DE NAVEGAÇÃO E BUSCA (O segredo está aqui!) ---
+    // --- 4. FUNÇÕES DE NAVEGAÇÃO E BUSCA  ---
 
     // Função para mostrar a Home e esconder a Busca
     function showHome(e) {
-        if (e) e.preventDefault(); // Evita comportamento padrão de link se houver
+        if (e) e.preventDefault(); // Evita comportamento padrão de 
         searchView.style.display = 'none';
         favoritesView.style.display = 'none';
         homeView.style.display = 'block';
         searchInput.value = ''; // Limpa o campo de busca
 
-        // Tenta rolar o container pai, o próprio elemento e a janela (garante que suba em qualquer layout)
         if (homeView.parentElement) homeView.parentElement.scrollTo({ top: 0, behavior: 'smooth' });
         homeView.scrollTo({ top: 0, behavior: 'smooth' });
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -485,9 +482,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // NOVOS LISTENERS PARA NAVEGAÇÃO
         searchInput.addEventListener('keypress', handleSearch);
 
-        // Aqui está a correção que você pediu:
         linkHome.addEventListener('click', showHome); // Clicar em "Início"
-        appLogo.addEventListener('click', showHome);  // Clicar no Logo "MeuPlayer"
+        appLogo.addEventListener('click', showHome);  
         backHomeBtn.addEventListener('click', showHome); // Clicar no botão voltar (se quiser usar)
         linkFavorites.addEventListener('click', showFavorites); // Clicar em "Minhas Favoritas"
         linkSearch.addEventListener('click', (e) => {
