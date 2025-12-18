@@ -24,19 +24,32 @@ body {
     height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* Impede rolagem dupla com a sidebar */
+    overflow: hidden;
+    /* Impede rolagem dupla com a sidebar */
 }
 
 /* Links e Listas */
-a { text-decoration: none; color: var(--text-secondary); transition: color 0.3s; }
-a:hover, .control-btn:hover { color: var(--text-primary); }
-ul { list-style: none; }
+a {
+    text-decoration: none;
+    color: var(--text-secondary);
+    transition: color 0.3s;
+}
+
+a:hover,
+.control-btn:hover {
+    color: var(--text-primary);
+}
+
+ul {
+    list-style: none;
+}
 
 /* === LAYOUT PRINCIPAL === */
 .container {
     display: flex;
     flex: 1;
-    overflow: hidden; /* Mantém o player no fundo */
+    overflow: hidden;
+    /* Mantém o player no fundo */
 }
 
 /* SIDEBAR (Navegação Esquerda) */
@@ -48,10 +61,31 @@ ul { list-style: none; }
     flex-direction: column;
     justify-content: space-between;
 }
-.logo { margin-bottom: 30px; font-size: 24px; }
-.primary-nav ul, .secondary-nav ul { display: flex; flex-direction: column; gap: 16px; }
-.sidebar a { display: flex; align-items: center; gap: 16px; font-weight: 700; font-size: 14px; }
-#sidebar-bottom-group { border-top: 1px solid #282828; padding-top: 20px; }
+
+.logo {
+    margin-bottom: 30px;
+    font-size: 24px;
+}
+
+.primary-nav ul,
+.secondary-nav ul {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+#sidebar-bottom-group {
+    border-top: 1px solid #282828;
+    padding-top: 20px;
+}
 
 
 /* CONTEÚDO PRINCIPAL (Centro) */
@@ -59,7 +93,8 @@ ul { list-style: none; }
     flex: 1;
     background: linear-gradient(to bottom, #2e2e2e, var(--bg-black));
     padding: 24px 32px;
-    overflow-y: auto; /* Permite rolar o conteúdo central */
+    overflow-y: auto;
+    /* Permite rolar o conteúdo central */
 }
 
 /* Header e Busca */
@@ -69,6 +104,7 @@ header {
     align-items: center;
     margin-bottom: 32px;
 }
+
 .search-bar {
     background-color: var(--text-primary);
     border-radius: 500px;
@@ -76,8 +112,18 @@ header {
     display: flex;
     align-items: center;
     width: 360px;
+    transition: width 0.4s ease-in-out;
 }
-.search-icon { color: var(--bg-black); margin-right: 10px; }
+
+.search-bar:focus-within {
+    width: 480px;
+}
+
+.search-icon {
+    color: var(--bg-black);
+    margin-right: 10px;
+}
+
 .search-input {
     border: none;
     outline: none;
@@ -87,13 +133,21 @@ header {
 }
 
 /* Seções de Gênero e Cards */
-.genre-section { margin-bottom: 40px; }
-.genre-section h3 { font-size: 24px; margin-bottom: 20px; }
+.genre-section {
+    margin-bottom: 40px;
+}
+
+.genre-section h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
 .track-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 24px;
 }
+
 .track-card {
     background-color: var(--bg-dark-gray);
     padding: 16px;
@@ -101,17 +155,36 @@ header {
     transition: background-color 0.3s ease;
     cursor: pointer;
 }
-.track-card:hover { background-color: var(--bg-light-gray); }
+
+.track-card:hover {
+    background-color: var(--bg-light-gray);
+}
+
 .track-card img {
     width: 100%;
     aspect-ratio: 1/1;
     border-radius: 4px;
     margin-bottom: 16px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
-.track-card h4 { font-size: 16px; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.track-card p { font-size: 14px; color: var(--text-secondary); }
-.loading { color: var(--text-secondary); font-size: 14px; }
+
+.track-card h4 {
+    font-size: 16px;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.track-card p {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.loading {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
 
 /* === PLAYER BAR (Rodapé) === */
 .player-bar {
@@ -122,14 +195,34 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    z-index: 100; /* Fica acima do conteúdo */
+    z-index: 100;
+    /* Fica acima do conteúdo */
 }
 
 /* Informações da Música (Esquerda) */
-.song-info { display: flex; align-items: center; width: 30%; min-width: 180px; }
-.song-info img { width: 56px; height: 56px; margin-right: 16px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
-.song-info h3 { font-size: 14px; margin-bottom: 4px; }
-.song-info p { font-size: 12px; color: var(--text-secondary); }
+.song-info {
+    display: flex;
+    align-items: center;
+    width: 30%;
+    min-width: 180px;
+}
+
+.song-info img {
+    width: 56px;
+    height: 56px;
+    margin-right: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.song-info h3 {
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.song-info p {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
 
 /* Controles Centrais */
 .player-controls-container {
@@ -139,7 +232,14 @@ header {
     width: 40%;
     max-width: 722px;
 }
-.player-controls { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+
+.player-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px;
+}
+
 .control-btn {
     background: none;
     border: none;
@@ -148,7 +248,10 @@ header {
     cursor: pointer;
     transition: color 0.2s, transform 0.2s;
 }
-.control-btn.icon-only { font-size: 18px; }
+
+.control-btn.icon-only {
+    font-size: 18px;
+}
 
 /* ESTADO ATIVO (VERDE) PARA REPETIR E FILA */
 .control-btn.active {
@@ -173,9 +276,17 @@ header {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    display: flex; align-items: center; justify-content: center; font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
 }
-.play-btn:hover, .big-play:hover { transform: scale(1.05); color: var(--bg-black); }
+
+.play-btn:hover,
+.big-play:hover {
+    transform: scale(1.05);
+    color: var(--bg-black);
+}
 
 /* Barra de Progresso */
 .progress-container {
@@ -186,6 +297,7 @@ header {
     font-size: 12px;
     color: var(--text-secondary);
 }
+
 .progress-bar {
     flex: 1;
     height: 4px;
@@ -194,24 +306,46 @@ header {
     cursor: pointer;
     position: relative;
 }
-.progress { height: 100%; background-color: var(--text-primary); border-radius: 2px; width: 0%; }
-.progress-bar:hover .progress { background-color: var(--spotify-green); }
+
+.progress {
+    height: 100%;
+    background-color: var(--text-primary);
+    border-radius: 2px;
+    width: 0%;
+}
+
+.progress-bar:hover .progress {
+    background-color: var(--spotify-green);
+}
 
 /* Volume (Direita) */
-.volume-container { display: flex; align-items: center; width: 30%; justify-content: flex-end; }
-.volume-container i { color: var(--text-secondary); margin-right: 8px; }
-input[type="range"] { cursor: pointer; }
+.volume-container {
+    display: flex;
+    align-items: center;
+    width: 30%;
+    justify-content: flex-end;
+}
+
+.volume-container i {
+    color: var(--text-secondary);
+    margin-right: 8px;
+}
+
+input[type="range"] {
+    cursor: pointer;
+}
 
 
 /* === NOVO PLAYER FLUTUANTE (CARD) === */
 .floating-player {
     position: fixed;
-    bottom: 95px; /* Logo acima da barra do player */
+    bottom: 95px;
+    /* Logo acima da barra do player */
     right: 20px;
     width: 350px;
     background-color: var(--bg-dark-gray);
     border-radius: 12px;
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.7);
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.7);
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -228,26 +362,47 @@ input[type="range"] { cursor: pointer; }
     pointer-events: none;
 }
 
-.fp-header { display: flex; justify-content: flex-end; margin-bottom: 10px;}
+.fp-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
 
 #fp-cover {
     width: 100%;
     aspect-ratio: 1/1;
     border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     margin-bottom: 20px;
     object-fit: cover;
 }
 
-.fp-info { margin-bottom: 20px; }
-#fp-title { font-size: 20px; font-weight: 700; margin-bottom: 5px; }
-#fp-artist { font-size: 14px; color: var(--text-secondary); }
+.fp-info {
+    margin-bottom: 20px;
+}
+
+#fp-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+#fp-artist {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
 
 .fp-controls {
-    justify-content: space-between; /* Espalha os controles */
+    justify-content: space-between;
+    /* Espalha os controles */
     margin-top: 15px;
 }
-.big-play { width: 50px; height: 50px; font-size: 20px; }
+
+.big-play {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+}
 
 
 /* === SIDEBAR DA FILA (QUEUE) === */
@@ -256,10 +411,12 @@ input[type="range"] { cursor: pointer; }
     top: 0;
     right: 0;
     width: 350px;
-    height: calc(100vh - 90px); /* Altura total menos a barra do player */
+    height: calc(100vh - 90px);
+    /* Altura total menos a barra do player */
     background-color: var(--bg-dark-gray);
-    box-shadow: -5px 0 20px rgba(0,0,0,0.5);
-    z-index: 999; /* Abaixo do player flutuante, acima do resto */
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    /* Abaixo do player flutuante, acima do resto */
     padding: 24px;
     overflow-y: auto;
     transition: transform 0.3s ease-in-out;
@@ -267,12 +424,21 @@ input[type="range"] { cursor: pointer; }
 }
 
 .queue-sidebar.hidden {
-    transform: translateX(100%); /* Esconde para a direita */
+    transform: translateX(100%);
+    /* Esconde para a direita */
 }
 
-.queue-sidebar h3 { margin-bottom: 20px; font-size: 18px; }
+.queue-sidebar h3 {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
 
-#queue-list { display: flex; flex-direction: column; gap: 10px; }
+#queue-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .queue-item {
     display: flex;
     align-items: center;
@@ -280,26 +446,66 @@ input[type="range"] { cursor: pointer; }
     border-radius: 4px;
     cursor: pointer;
 }
-.queue-item:hover { background-color: var(--bg-light-gray); }
-.queue-item.playing { background-color: #2a2a2a; }
-.queue-item.playing .queue-title { color: var(--spotify-green); font-weight: 700; }
 
-.queue-cover { width: 40px; height: 40px; border-radius: 4px; margin-right: 12px; }
-.queue-info { display: flex; flex-direction: column; overflow: hidden; }
-.queue-title { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.queue-artist { font-size: 12px; color: var(--text-secondary); }
+.queue-item:hover {
+    background-color: var(--bg-light-gray);
+}
+
+.queue-item.playing {
+    background-color: #2a2a2a;
+}
+
+.queue-item.playing .queue-title {
+    color: var(--spotify-green);
+    font-weight: 700;
+}
+
+.queue-cover {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    margin-right: 12px;
+}
+
+.queue-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.queue-title {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.queue-artist {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
 
 /* Responsividade Básica */
 @media (max-width: 768px) {
-    .sidebar { display: none; } /* Esconde sidebar em telas pequenas */
-    .floating-player, .queue-sidebar {
-        width: 100%; /* Ocupa largura total no mobile */
+    .sidebar {
+        display: none;
+    }
+
+    /* Esconde sidebar em telas pequenas */
+    .floating-player,
+    .queue-sidebar {
+        width: 100%;
+        /* Ocupa largura total no mobile */
         right: 0;
         left: 0;
         bottom: 90px;
-        border-radius: 12px 12px 0 0; /* Arredonda só em cima */
+        border-radius: 12px 12px 0 0;
+        /* Arredonda só em cima */
     }
-    .floating-player { bottom: 90px; max-height: calc(100vh - 90px); overflow-y: auto;}
+
+    .floating-player {
+        bottom: 90px;
+        max-height: calc(100vh - 90px);
+        overflow-y: auto;
+    }
 }
-
-

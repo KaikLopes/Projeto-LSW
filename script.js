@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const favoritesView = document.getElementById('favorites-view');
     const linkHome = document.getElementById('link-home'); // Botão Início na Sidebar
     const linkFavorites = document.getElementById('link-favorites'); // Botão Favoritas
+    const linkSearch = document.getElementById('link-search'); // Botão Pesquisar
     const appLogo = document.getElementById('app-logo');   // Logo na Sidebar
     const backHomeBtn = document.getElementById('back-home-btn'); // Botão Voltar na busca
 
@@ -386,6 +387,10 @@ document.addEventListener('DOMContentLoaded', () => {
         appLogo.addEventListener('click', showHome);  // Clicar no Logo "MeuPlayer"
         backHomeBtn.addEventListener('click', showHome); // Clicar no botão voltar (se quiser usar)
         linkFavorites.addEventListener('click', showFavorites); // Clicar em "Minhas Favoritas"
+        linkSearch.addEventListener('click', (e) => {
+            showHome(e);
+            searchInput.focus();
+        });
     }
 
     initializeApp();
