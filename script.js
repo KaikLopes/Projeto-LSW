@@ -3,7 +3,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. CONSTANTES E ELEMENTOS ---
-    const CLIENT_ID = '726b76ab'; 
+    const CLIENT_ID = '726b76ab';
     const API_BASE_URL = 'https://api.jamendo.com/v3.0';
 
     // Navegação e Views (NOVOS)
@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const linkHome = document.getElementById('link-home'); // Botão Início na Sidebar
     const linkFavorites = document.getElementById('link-favorites'); // Botão Favoritas
     const linkSearch = document.getElementById('link-search'); // Botão Pesquisar
+    const linkFeedback = document.getElementById('link-feedback'); // Botão Feedback
     const appLogo = document.getElementById('app-logo');   // Logo na Sidebar
     const backHomeBtn = document.getElementById('back-home-btn'); // Botão Voltar na busca
 
@@ -20,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input-field');
     const searchResultsContainer = document.getElementById('search-results-container');
     const searchHeaderTitle = document.getElementById('search-header-title');
-    
+
     // Container Favoritas
     const favoritesContainer = document.getElementById('favorites-container');
 
@@ -63,6 +64,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const queueList = document.getElementById('queue-list');
     const closeQueueBtn = document.getElementById('close-queue-btn');
 
+    // Feedback Elements
+    const feedbackModal = document.getElementById('feedback-modal');
+    const closeFeedback = document.getElementById('close-feedback');
+    const sendFeedbackBtn = document.getElementById('send-feedback-btn');
+    const feedbackStars = document.querySelectorAll('.star-rating i');
+    const feedbackText = document.getElementById('feedback-text');
+
     // Containers da Home
     const trendingContainer = document.getElementById('top-trending-container');
     const rockContainer = document.getElementById('rock-container');
@@ -72,13 +80,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- ESTADO DO PLAYER ---
-    let currentPlaylist = []; 
-    let currentTrackIndex = 0; 
+    let currentPlaylist = [];
+    let currentTrackIndex = 0;
     let isPlaying = false;
-    let repeatState = 0; 
+    let repeatState = 0;
     let isQueueOpen = false;
     let isFloatingPlayerOpen = false;
     let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    let currentRating = 0;
 
 
     // --- 2. API ---
@@ -93,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 title: track.name,
                 artist: track.artist_name,
                 arquivo: track.audio,
-                capa: track.image.replace('1.jpg', '4.jpg'), 
+                capa: track.image.replace('1.jpg', '4.jpg'),
             }));
         } catch (error) { console.error('Erro API:', error); return []; }
     }
@@ -130,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fpCover.src = track.capa;
         audioPlayer.src = track.arquivo;
         progress.style.width = '0%'; fpProgress.style.width = '0%';
-        if(isQueueOpen) renderQueue();
+        if (isQueueOpen) renderQueue();
         updateLikeButton();
     }
 
@@ -140,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
         fpPlayPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
         audioPlayer.play();
-        if(isQueueOpen) renderQueue();
+        if (isQueueOpen) renderQueue();
     }
 
     function pauseSong() {
@@ -148,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
         fpPlayPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
         audioPlayer.pause();
-        if(isQueueOpen) renderQueue();
+        if (isQueueOpen) renderQueue();
     }
 
     function handlePlayPause() { isPlaying ? pauseSong() : playSong(); }
@@ -174,10 +183,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         currentTrackIndex++;
         if (currentTrackIndex >= currentPlaylist.length) {
-            if (repeatState === 1 || repeatState === 2) { 
-                currentTrackIndex = 0; 
+            if (repeatState === 1 || repeatState === 2) {
+                currentTrackIndex = 0;
             } else {
-                pauseSong(); 
+                pauseSong();
                 audioPlayer.currentTime = 0;
                 return;
             }
@@ -187,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function toggleRepeat() {
-        repeatState = (repeatState + 1) % 3; 
+        repeatState = (repeatState + 1) % 3;
         const finalIcon = repeatState === 2 ? '<i class="fas fa-repeat"></i><span style="font-size:10px;position:absolute;">1</span>' : '<i class="fas fa-repeat"></i>';
         repeatBtn.innerHTML = finalIcon;
         fpRepeatBtn.innerHTML = finalIcon;
@@ -204,10 +213,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentPlaylist.length === 0) return;
         const currentTrack = currentPlaylist[currentTrackIndex];
         const isFav = favorites.some(fav => fav.id === currentTrack.id);
-        
+
         const iconClass = isFav ? 'fas fa-heart' : 'far fa-heart';
-        const color = isFav ? '#1DB954' : 'inherit'; 
-        
+        const color = isFav ? '#1DB954' : 'inherit';
+
         likeBtn.innerHTML = `<i class="${iconClass}" style="color: ${color}"></i>`;
         fpLikeBtn.innerHTML = `<i class="${iconClass}" style="color: ${color}"></i>`;
     }
@@ -222,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             favorites.splice(index, 1);
         }
-        
+
         localStorage.setItem('favorites', JSON.stringify(favorites));
         updateLikeButton();
         if (favoritesView.style.display === 'block') {
@@ -234,12 +243,12 @@ document.addEventListener('DOMContentLoaded', () => {
         isQueueOpen = !isQueueOpen;
         queueSidebar.classList.toggle('hidden', !isQueueOpen);
         queueBtn.classList.toggle('active', isQueueOpen);
-        if(isQueueOpen) renderQueue();
+        if (isQueueOpen) renderQueue();
     }
 
     function renderQueue() {
         queueList.innerHTML = '';
-        if(currentPlaylist.length === 0) {
+        if (currentPlaylist.length === 0) {
             queueList.innerHTML = '<p style="padding:15px; color:#aaa;">Fila vazia</p>';
             return;
         }
@@ -255,11 +264,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${index === currentTrackIndex && isPlaying ? '<i class="fas fa-volume-up" style="color:#1DB954;margin-left:auto;"></i>' : ''}
             `;
             li.addEventListener('click', () => {
-                 if (index !== currentTrackIndex) {
+                if (index !== currentTrackIndex) {
                     currentTrackIndex = index;
                     loadTrack(currentPlaylist[currentTrackIndex]);
                     playSong();
-                 }
+                }
             });
             queueList.appendChild(li);
         });
@@ -307,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
         favoritesView.style.display = 'none';
         homeView.style.display = 'block';
         searchInput.value = ''; // Limpa o campo de busca
-        
+
         // Tenta rolar o container pai, o próprio elemento e a janela (garante que suba em qualquer layout)
         if (homeView.parentElement) homeView.parentElement.scrollTo({ top: 0, behavior: 'smooth' });
         homeView.scrollTo({ top: 0, behavior: 'smooth' });
@@ -318,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleSearch(e) {
         if (e.key !== 'Enter' || searchInput.value.trim() === '') return;
         const term = searchInput.value.trim();
-        
+
         // Troca as telas
         homeView.style.display = 'none';
         searchView.style.display = 'block';
@@ -343,6 +352,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderFavorites() {
         renderTracks(favorites, favoritesContainer);
+    }
+
+    // --- FUNÇÕES DE FEEDBACK ---
+    function openFeedback(e) {
+        if (e) e.preventDefault();
+        feedbackModal.classList.remove('hidden');
+    }
+
+    function closeFeedbackModal() {
+        feedbackModal.classList.add('hidden');
+    }
+
+    function updateStars(rating) {
+        feedbackStars.forEach(s => {
+            const val = s.getAttribute('data-value');
+            if (val <= rating) {
+                s.classList.remove('far');
+                s.classList.add('fas');
+            } else {
+                s.classList.remove('fas');
+                s.classList.add('far');
+            }
+        });
+    }
+
+    function handleStarClick(e) {
+        currentRating = e.target.getAttribute('data-value');
+        updateStars(currentRating);
+    }
+
+    function sendFeedback() {
+        const text = feedbackText.value;
+        alert(`Obrigado pelo feedback!\nNota: ${currentRating} estrelas\nMensagem: ${text}`);
+        closeFeedbackModal();
+        currentRating = 0;
+        updateStars(0);
+        feedbackText.value = '';
     }
 
     // --- INICIALIZAÇÃO E EVENTOS ---
@@ -376,12 +422,24 @@ document.addEventListener('DOMContentLoaded', () => {
         closeFpBtn.addEventListener('click', toggleFloatingPlayer);
         closeQueueBtn.addEventListener('click', toggleQueue);
 
+        // Listeners Feedback
+        linkFeedback.addEventListener('click', openFeedback);
+        closeFeedback.addEventListener('click', closeFeedbackModal);
+        sendFeedbackBtn.addEventListener('click', sendFeedback);
+        window.addEventListener('click', (e) => { if (e.target === feedbackModal) closeFeedbackModal(); });
+
+        feedbackStars.forEach(star => {
+            star.addEventListener('click', handleStarClick);
+            star.addEventListener('mouseover', (e) => updateStars(e.target.getAttribute('data-value')));
+            star.addEventListener('mouseout', () => updateStars(currentRating));
+        });
+
         audioPlayer.addEventListener('timeupdate', updateProgress);
         audioPlayer.addEventListener('ended', () => nextSong(true));
-        
+
         // NOVOS LISTENERS PARA NAVEGAÇÃO
         searchInput.addEventListener('keypress', handleSearch);
-        
+
         // Aqui está a correção que você pediu:
         linkHome.addEventListener('click', showHome); // Clicar em "Início"
         appLogo.addEventListener('click', showHome);  // Clicar no Logo "MeuPlayer"

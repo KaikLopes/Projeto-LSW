@@ -29,8 +29,8 @@
             <div id="sidebar-bottom-group">
                 <nav class="secondary-nav" id="nav-secondary">
                     <ul id="nav-list-secondary">
-                        <li id="nav-item-library"><a href="#" id="link-library"><i class="fas fa-book"></i> Sua
-                                Biblioteca</a></li>
+                        <li id="nav-item-feedback"><a href="#" id="link-feedback"><i class="fas fa-comment-alt"></i>
+                                Feedback</a></li>
                         <li id="nav-item-settings"><a href="#" id="link-settings"><i class="fas fa-cog"></i>
                                 Configurações</a></li>
                     </ul>
@@ -140,6 +140,26 @@
             <button id="close-queue-btn" class="control-btn icon-only"><i class="fas fa-times"></i></button>
         </div>
         <ul id="queue-list"></ul>
+    </div>
+
+    <div id="feedback-modal" class="modal hidden">
+        <div class="modal-content">
+            <span id="close-feedback" class="close-modal">&times;</span>
+            <h2>Avalie nosso Player</h2>
+            <div class="star-rating">
+                <i class="far fa-star" data-value="1"></i>
+                <i class="far fa-star" data-value="2"></i>
+                <i class="far fa-star" data-value="3"></i>
+                <i class="far fa-star" data-value="4"></i>
+                <i class="far fa-star" data-value="5"></i>
+            </div>
+            <label for="feedback-text"
+                style="display:block; text-align:left; margin-bottom: 5px; color: #b3b3b3; font-size: 14px;">Detalhe sua
+                avaliação (opcional)</label>
+            <textarea id="feedback-text" placeholder="Escreva aqui..."></textarea>
+            <button id="send-feedback-btn" class="control-btn play-btn"
+                style="width: auto; padding: 0 20px; border-radius: 20px; font-weight: bold;">Enviar</button>
+        </div>
     </div>
 
     <footer class="player-bar" id="player-footer">

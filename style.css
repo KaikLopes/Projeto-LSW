@@ -509,3 +509,77 @@ input[type="range"] {
         overflow-y: auto;
     }
 }
+
+/* === MODAL DE FEEDBACK === */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.modal.hidden {
+    display: none;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-content {
+    background-color: var(--bg-dark-gray);
+    padding: 30px;
+    border-radius: 12px;
+    width: 400px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.close-modal:hover {
+    color: var(--text-primary);
+}
+
+.star-rating {
+    margin: 20px 0;
+    font-size: 24px;
+    color: var(--spotify-green);
+    cursor: pointer;
+}
+
+.star-rating i {
+    margin: 0 5px;
+    transition: transform 0.2s;
+}
+
+.star-rating i:hover {
+    transform: scale(1.2);
+}
+
+#feedback-text {
+    width: 100%;
+    height: 100px;
+    background-color: #333;
+    border: none;
+    border-radius: 4px;
+    padding: 10px;
+    color: white;
+    margin-bottom: 20px;
+    resize: none;
+    font-family: inherit;
+}
