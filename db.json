@@ -1,0 +1,19 @@
+{
+  "jogos": [
+    {
+      "id": "1",
+      "nome": "Hollow Knight",
+      "status": "Jogando"
+    },
+    {
+      "id": "2",
+      "nome": "League of Legends",
+      "status": "Viciado"
+    },
+    {
+      "id": "027b",
+      "nome": "Free Fire",
+      "status": "Jogo as vezes"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "projeto-lsw",
+  "version": "1.0.0",
+  "description": "Bem-vindo ao repositório do **KLDMusic**, uma aplicação web de streaming de música desenvolvida com foco em experiência do usuário, design responsivo e consumo de APIs externas.",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KaikLopes/Projeto-LSW.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/KaikLopes/Projeto-LSW/issues"
+  },
+  "homepage": "https://github.com/KaikLopes/Projeto-LSW#readme",
+  "devDependencies": {
+    "json-server": "^1.0.0-beta.5"
+  }
+}
