@@ -9,20 +9,20 @@
       "streak": 3
     },
     {
-      "id": "2",
       "nome": "League of Legends",
-      "status": "Viciado",
-      "rank": "Esmeralda IV",
+      "status": "",
+      "rank": "Mestre IV",
       "tempo": "2000h+",
-      "streak": 12
+      "streak": "12",
+      "id": "2"
     },
     {
-      "id": "3",
       "nome": "Valorant",
       "status": "Jogando",
       "rank": "Ouro 2",
-      "tempo": "Online agora",
-      "streak": 5
+      "tempo": "4000h+",
+      "streak": "98",
+      "id": "3"
     }
   ]
 }
