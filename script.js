@@ -1,514 +1,175 @@
+const API_URL = 'http://localhost:3000/jogos';
+let listaGlobalJogos = [];
+let modalAdd;
+let modalEdit;
+
 document.addEventListener('DOMContentLoaded', () => {
-
-    // --- 1. CONSTANTES E ELEMENTOS ---
-    const CLIENT_ID = '726b76ab';
-    const API_BASE_URL = 'https://api.jamendo.com/v3.0';
-
-    // Navegação e Views (NOVOS)
-    const homeView = document.getElementById('home-view');
-    const searchView = document.getElementById('search-view');
-    const favoritesView = document.getElementById('favorites-view');
-    const linkHome = document.getElementById('link-home'); // Botão Início na Sidebar
-    const sidebar = document.getElementById('sidebar-menu'); // Sidebar
-    const linkFavorites = document.getElementById('link-favorites'); // Botão Favoritas
-    const linkSearch = document.getElementById('link-search'); // Botão Pesquisar
-    const linkFeedback = document.getElementById('link-feedback'); // Botão Feedback
-    const linkTheme = document.getElementById('link-theme'); // Botão Tema
-    const linkContact = document.getElementById('link-contact'); // Botão Contate-nos
-    const appLogo = document.getElementById('app-logo');   // Logo na Sidebar
-    const backHomeBtn = document.getElementById('back-home-btn'); // Botão Voltar na busca
-
-    // Containers de Busca
-    const searchInput = document.getElementById('search-input-field');
-    const searchResultsContainer = document.getElementById('search-results-container');
-    const searchHeaderTitle = document.getElementById('search-header-title');
-
-    // Container Favoritas
-    const favoritesContainer = document.getElementById('favorites-container');
-
-    // Player Elements (Mini)
-    const audioPlayer = document.getElementById('audio-player');
-    const likeBtn = document.getElementById('like-btn');
-    const playPauseBtn = document.getElementById('play-pause-btn');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const repeatBtn = document.getElementById('repeat-btn');
-    const queueBtn = document.getElementById('queue-btn');
-    const currentCover = document.getElementById('current-cover');
-    const currentTitle = document.getElementById('current-title');
-    const currentArtist = document.getElementById('current-artist');
-    const progressBar = document.getElementById('progress-bar');
-    const progress = document.getElementById('progress');
-    const currentTimeEl = document.getElementById('current-time');
-    const durationEl = document.getElementById('duration');
-    const volumeSlider = document.getElementById('volume-slider');
-    const miniPlayerClickArea = document.getElementById('mini-player-click-area');
-
-    // Floating Player Elements
-    const floatingPlayer = document.getElementById('floating-player');
-    const closeFpBtn = document.getElementById('close-fp-btn');
-    const fpCover = document.getElementById('fp-cover');
-    const fpTitle = document.getElementById('fp-title');
-    const fpArtist = document.getElementById('fp-artist');
-    const fpPlayPauseBtn = document.getElementById('fp-play-pause-btn');
-    const fpLikeBtn = document.getElementById('fp-like-btn');
-    const fpPrevBtn = document.getElementById('fp-prev-btn');
-    const fpNextBtn = document.getElementById('fp-next-btn');
-    const fpRepeatBtn = document.getElementById('fp-repeat-btn');
-    const fpProgressBar = document.getElementById('fp-progress-bar');
-    const fpProgress = document.getElementById('fp-progress');
-    const fpCurrentTimeEl = document.getElementById('fp-current-time');
-    const fpDurationEl = document.getElementById('fp-duration');
-
-    // Queue Elements
-    const queueSidebar = document.getElementById('queue-sidebar');
-    const queueList = document.getElementById('queue-list');
-    const closeQueueBtn = document.getElementById('close-queue-btn');
-
-    // Feedback Elements
-    const feedbackModal = document.getElementById('feedback-modal');
-    const closeFeedback = document.getElementById('close-feedback');
-    const sendFeedbackBtn = document.getElementById('send-feedback-btn');
-    const feedbackStars = document.querySelectorAll('.star-rating i');
-    const feedbackText = document.getElementById('feedback-text');
-    const contactPopover = document.getElementById('contact-popover');
-    const themePopover = document.getElementById('theme-popover');
-
-    // Containers da Home
-    const trendingContainer = document.getElementById('top-trending-container');
-    const rockContainer = document.getElementById('rock-container');
-    const popContainer = document.getElementById('pop-container');
-    const electronicContainer = document.getElementById('electronic-container');
-    const hiphopContainer = document.getElementById('hiphop-container');
-
-
-    // --- ESTADO DO PLAYER ---
-    let currentPlaylist = [];
-    let currentTrackIndex = 0;
-    let isPlaying = false;
-    let repeatState = 0;
-    let isQueueOpen = false;
-    let isFloatingPlayerOpen = false;
-    let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-    let currentRating = 0;
-
-
-    // --- 2. API ---
-    async function fetchTracks(tags = '', order = 'popularity_month', limit = 10) {
-        let url = `${API_BASE_URL}/tracks/?client_id=${CLIENT_ID}&format=json&limit=${limit}&order=${order}`;
-        if (tags) url += `&tags=${tags}`;
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-            return data.results.map(track => ({
-                id: track.id,
-                title: track.name,
-                artist: track.artist_name,
-                arquivo: track.audio,
-                capa: track.image.replace('1.jpg', '4.jpg'),
-            }));
-        } catch (error) { console.error('Erro API:', error); return []; }
-    }
-
-    function renderTracks(tracks, container) {
-        container.innerHTML = '';
-        if (tracks.length === 0) { container.innerHTML = '<p>Nada encontrado.</p>'; return; }
-        tracks.forEach((track, index) => {
-            const trackCard = document.createElement('div');
-            trackCard.className = 'track-card';
-            trackCard.innerHTML = `
-                <img src="${track.capa}" alt="${track.title}">
-                <h4>${track.title}</h4>
-                <p>${track.artist}</p>
-            `;
-            trackCard.addEventListener('click', () => {
-                currentPlaylist = tracks;
-                currentTrackIndex = index;
-                loadTrack(currentPlaylist[currentTrackIndex]);
-                playSong();
-            });
-            container.appendChild(trackCard);
-        });
-    }
-
-
-    // --- 3. CONTROLES DE ÁUDIO ---
-    function loadTrack(track) {
-        currentTitle.textContent = track.title;
-        currentArtist.textContent = track.artist;
-        currentCover.src = track.capa;
-        fpTitle.textContent = track.title;
-        fpArtist.textContent = track.artist;
-        fpCover.src = track.capa;
-        audioPlayer.src = track.arquivo;
-        progress.style.width = '0%'; fpProgress.style.width = '0%';
-        if (isQueueOpen) renderQueue();
-        updateLikeButton();
-    }
-
-    function playSong() {
-        if (!audioPlayer.src) return;
-        isPlaying = true;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        fpPlayPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        audioPlayer.play();
-        if (isQueueOpen) renderQueue();
-    }
-
-    function pauseSong() {
-        isPlaying = false;
-        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        fpPlayPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        audioPlayer.pause();
-        if (isQueueOpen) renderQueue();
-    }
-
-    function handlePlayPause() { isPlaying ? pauseSong() : playSong(); }
-
-    function prevSong() {
-        if (currentPlaylist.length === 0) return;
-        if (audioPlayer.currentTime > 3) {
-            audioPlayer.currentTime = 0;
-        } else {
-            currentTrackIndex--;
-            if (currentTrackIndex < 0) currentTrackIndex = currentPlaylist.length - 1;
-            loadTrack(currentPlaylist[currentTrackIndex]);
-        }
-        playSong();
-    }
-
-    function nextSong(isAuto = false) {
-        if (currentPlaylist.length === 0) return;
-        if (repeatState === 2 && isAuto) {
-            audioPlayer.currentTime = 0;
-            playSong();
-            return;
-        }
-        currentTrackIndex++;
-        if (currentTrackIndex >= currentPlaylist.length) {
-            if (repeatState === 1 || repeatState === 2) {
-                currentTrackIndex = 0;
-            } else {
-                pauseSong();
-                audioPlayer.currentTime = 0;
-                return;
-            }
-        }
-        loadTrack(currentPlaylist[currentTrackIndex]);
-        playSong();
-    }
-
-    function toggleRepeat() {
-        repeatState = (repeatState + 1) % 3;
-        const finalIcon = repeatState === 2 ? '<i class="fas fa-repeat"></i><span style="font-size:10px;position:absolute;">1</span>' : '<i class="fas fa-repeat"></i>';
-        repeatBtn.innerHTML = finalIcon;
-        fpRepeatBtn.innerHTML = finalIcon;
-        if (repeatState === 0) {
-            repeatBtn.classList.remove('active');
-            fpRepeatBtn.classList.remove('active');
-        } else {
-            repeatBtn.classList.add('active');
-            fpRepeatBtn.classList.add('active');
-        }
-    }
-
-    function updateLikeButton() {
-        if (currentPlaylist.length === 0) return;
-        const currentTrack = currentPlaylist[currentTrackIndex];
-        const isFav = favorites.some(fav => fav.id === currentTrack.id);
-
-        const iconClass = isFav ? 'fas fa-heart' : 'far fa-heart';
-        const color = isFav ? '#1DB954' : 'inherit';
-
-        likeBtn.innerHTML = `<i class="${iconClass}" style="color: ${color}"></i>`;
-        fpLikeBtn.innerHTML = `<i class="${iconClass}" style="color: ${color}"></i>`;
-    }
-
-    function toggleLike() {
-        if (currentPlaylist.length === 0) return;
-        const currentTrack = currentPlaylist[currentTrackIndex];
-        const index = favorites.findIndex(fav => fav.id === currentTrack.id);
-
-        if (index === -1) {
-            favorites.push(currentTrack);
-        } else {
-            favorites.splice(index, 1);
-        }
-
-        localStorage.setItem('favorites', JSON.stringify(favorites));
-        updateLikeButton();
-        if (favoritesView.style.display === 'block') {
-            renderFavorites();
-        }
-    }
-
-    function toggleQueue() {
-        isQueueOpen = !isQueueOpen;
-        queueSidebar.classList.toggle('hidden', !isQueueOpen);
-        queueBtn.classList.toggle('active', isQueueOpen);
-        if (isQueueOpen) renderQueue();
-    }
-
-    function renderQueue() {
-        queueList.innerHTML = '';
-        if (currentPlaylist.length === 0) {
-            queueList.innerHTML = '<p style="padding:15px; color:#aaa;">Fila vazia</p>';
-            return;
-        }
-        currentPlaylist.forEach((track, index) => {
-            const li = document.createElement('li');
-            li.className = `queue-item ${index === currentTrackIndex ? 'playing' : ''}`;
-            li.innerHTML = `
-                <img src="${track.capa}" class="queue-cover">
-                <div class="queue-info">
-                    <span class="queue-title">${track.title}</span>
-                    <span class="queue-artist">${track.artist}</span>
-                </div>
-                ${index === currentTrackIndex && isPlaying ? '<i class="fas fa-volume-up" style="color:#1DB954;margin-left:auto;"></i>' : ''}
-            `;
-            li.addEventListener('click', () => {
-                if (index !== currentTrackIndex) {
-                    currentTrackIndex = index;
-                    loadTrack(currentPlaylist[currentTrackIndex]);
-                    playSong();
-                }
-            });
-            queueList.appendChild(li);
-        });
-    }
-
-    function toggleFloatingPlayer() {
-        if (!audioPlayer.src) return;
-        isFloatingPlayerOpen = !isFloatingPlayerOpen;
-        floatingPlayer.classList.toggle('hidden', !isFloatingPlayerOpen);
-        document.getElementById('expand-icon').className = isFloatingPlayerOpen ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
-    }
-
-    function updateProgress(e) {
-        const { duration, currentTime } = e.srcElement;
-        if (isNaN(duration)) return;
-        const p = (currentTime / duration) * 100;
-        progress.style.width = `${p}%`;
-        fpProgress.style.width = `${p}%`;
-        currentTimeEl.textContent = formatTime(currentTime);
-        fpCurrentTimeEl.textContent = formatTime(currentTime);
-        durationEl.textContent = formatTime(duration);
-        fpDurationEl.textContent = formatTime(duration);
-    }
-
-    function setProgress(e) {
-        const width = this.clientWidth;
-        const clickX = e.offsetX;
-        const duration = audioPlayer.duration;
-        audioPlayer.currentTime = (clickX / width) * duration;
-    }
-
-    function formatTime(s) {
-        const m = Math.floor(s / 60);
-        const sc = Math.floor(s % 60);
-        return `${m}:${sc < 10 ? '0' : ''}${sc}`;
-    }
-
-
-    // --- 4. FUNÇÕES DE NAVEGAÇÃO E BUSCA  ---
-
-    // Função para mostrar a Home e esconder a Busca
-    function showHome(e) {
-        if (e) e.preventDefault(); // Evita comportamento padrão de 
-        searchView.style.display = 'none';
-        favoritesView.style.display = 'none';
-        homeView.style.display = 'block';
-        searchInput.value = ''; // Limpa o campo de busca
-
-        if (homeView.parentElement) homeView.parentElement.scrollTo({ top: 0, behavior: 'smooth' });
-        homeView.scrollTo({ top: 0, behavior: 'smooth' });
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // Função para mostrar a Busca e esconder a Home
-    async function handleSearch(e) {
-        if (e.key !== 'Enter' || searchInput.value.trim() === '') return;
-        const term = searchInput.value.trim();
-
-        // Troca as telas
-        homeView.style.display = 'none';
-        searchView.style.display = 'block';
-        favoritesView.style.display = 'none';
-
-        // Atualiza título e limpa resultados antigos
-        searchHeaderTitle.textContent = `Resultados para "${term}"`;
-        searchResultsContainer.innerHTML = '<div class="loading">Buscando...</div>';
-
-        // Busca e renderiza
-        const tracks = await fetchTracks(term, 'popularity_total', 20);
-        renderTracks(tracks, searchResultsContainer);
-    }
-
-    function showFavorites(e) {
-        if (e) e.preventDefault();
-        homeView.style.display = 'none';
-        searchView.style.display = 'none';
-        favoritesView.style.display = 'block';
-        renderFavorites();
-    }
-
-    function renderFavorites() {
-        renderTracks(favorites, favoritesContainer);
-    }
-
-    // --- FUNÇÕES DE FEEDBACK ---
-    function openFeedback(e) {
-        if (e) e.preventDefault();
-        feedbackModal.classList.remove('hidden');
-    }
-
-    function closeFeedbackModal() {
-        feedbackModal.classList.add('hidden');
-    }
-
-    function updateStars(rating) {
-        feedbackStars.forEach(s => {
-            const val = s.getAttribute('data-value');
-            if (val <= rating) {
-                s.classList.remove('far');
-                s.classList.add('fas');
-            } else {
-                s.classList.remove('fas');
-                s.classList.add('far');
-            }
-        });
-    }
-
-    function handleStarClick(e) {
-        currentRating = e.target.getAttribute('data-value');
-        updateStars(currentRating);
-    }
-
-    function sendFeedback() {
-        const text = feedbackText.value;
-        alert(`Obrigado pelo feedback!\nNota: ${currentRating} estrelas\nMensagem: ${text}`);
-        closeFeedbackModal();
-        currentRating = 0;
-        updateStars(0);
-        feedbackText.value = '';
-    }
-
-    // --- FUNÇÃO AUXILIAR PARA SIDEBAR ---
-    function updateSidebarState() {
-        const isContactOpen = !contactPopover.classList.contains('hidden');
-        const isThemeOpen = !themePopover.classList.contains('hidden');
-        
-        if (isContactOpen || isThemeOpen) sidebar.classList.add('expanded');
-        else sidebar.classList.remove('expanded');
-    }
-
-    // --- FUNÇÕES DE TEMA ---
-    function handleThemeClick(e) {
-        e.preventDefault();
-        const rect = linkTheme.getBoundingClientRect();
-        themePopover.style.top = `${rect.top}px`;
-        themePopover.style.left = `${rect.right + 10}px`;
-        themePopover.classList.toggle('hidden');
-        updateSidebarState();
-    }
-
-    function setTheme(e) {
-        e.preventDefault();
-        const theme = e.target.dataset.theme;
-        const htmlRoot = document.getElementById('html-root');
-        htmlRoot.setAttribute('data-theme', theme);
-        themePopover.classList.add('hidden');
-        updateSidebarState();
-    }
-
-    // --- INICIALIZAÇÃO E EVENTOS ---
-    async function initializeApp() {
-        // Carrega Home
-        Promise.all([
-            fetchTracks('', 'popularity_week', 10).then(t => renderTracks(t, trendingContainer)),
-            fetchTracks('rock', 'popularity_month', 10).then(t => renderTracks(t, rockContainer)),
-            fetchTracks('pop', 'popularity_month', 10).then(t => renderTracks(t, popContainer)),
-            fetchTracks('electronic', 'popularity_month', 10).then(t => renderTracks(t, electronicContainer)),
-            fetchTracks('hiphop', 'popularity_month', 10).then(t => renderTracks(t, hiphopContainer))
-        ]);
-
-        // Listeners Padrão
-        likeBtn.addEventListener('click', toggleLike);
-        playPauseBtn.addEventListener('click', handlePlayPause);
-        prevBtn.addEventListener('click', prevSong);
-        nextBtn.addEventListener('click', () => nextSong(false));
-        repeatBtn.addEventListener('click', toggleRepeat);
-        queueBtn.addEventListener('click', toggleQueue);
-        progressBar.addEventListener('click', setProgress);
-        volumeSlider.addEventListener('input', (e) => audioPlayer.volume = e.target.value);
-        miniPlayerClickArea.addEventListener('click', toggleFloatingPlayer);
-
-        fpLikeBtn.addEventListener('click', toggleLike);
-        fpPlayPauseBtn.addEventListener('click', handlePlayPause);
-        fpPrevBtn.addEventListener('click', prevSong);
-        fpNextBtn.addEventListener('click', () => nextSong(false));
-        fpRepeatBtn.addEventListener('click', toggleRepeat);
-        fpProgressBar.addEventListener('click', setProgress);
-        closeFpBtn.addEventListener('click', toggleFloatingPlayer);
-        closeQueueBtn.addEventListener('click', toggleQueue);
-
-        // Listeners Feedback
-        linkFeedback.addEventListener('click', openFeedback);
-        closeFeedback.addEventListener('click', closeFeedbackModal);
-        sendFeedbackBtn.addEventListener('click', sendFeedback);
-        window.addEventListener('click', (e) => { 
-            if (e.target === feedbackModal) closeFeedbackModal();
-            // Fecha o popover se clicar fora
-            if (contactPopover && !contactPopover.classList.contains('hidden') && !contactPopover.contains(e.target) && !linkContact.contains(e.target)) {
-                contactPopover.classList.add('hidden');
-                updateSidebarState();
-            }
-            // Fecha o popover de tema se clicar fora
-            if (themePopover && !themePopover.classList.contains('hidden') && !themePopover.contains(e.target) && !linkTheme.contains(e.target)) {
-                themePopover.classList.add('hidden');
-                updateSidebarState();
-            }
-        });
-
-        feedbackStars.forEach(star => {
-            star.addEventListener('click', handleStarClick);
-            star.addEventListener('mouseover', (e) => updateStars(e.target.getAttribute('data-value')));
-            star.addEventListener('mouseout', () => updateStars(currentRating));
-        });
-
-        audioPlayer.addEventListener('timeupdate', updateProgress);
-        audioPlayer.addEventListener('ended', () => nextSong(true));
-
-        // NOVOS LISTENERS PARA NAVEGAÇÃO
-        searchInput.addEventListener('keypress', handleSearch);
-
-        linkHome.addEventListener('click', showHome); // Clicar em "Início"
-        appLogo.addEventListener('click', showHome);  
-        backHomeBtn.addEventListener('click', showHome); // Clicar no botão voltar (se quiser usar)
-        linkFavorites.addEventListener('click', showFavorites); // Clicar em "Minhas Favoritas"
-        linkSearch.addEventListener('click', (e) => {
-            showHome(e);
-            searchInput.focus();
-        });
-
-        // Listener Contate-nos
-        if (linkContact) {
-            linkContact.addEventListener('click', (e) => {
-                e.preventDefault();
-                const rect = linkContact.getBoundingClientRect();
-                contactPopover.style.top = `${rect.top}px`;
-                contactPopover.style.left = `${rect.right + 10}px`;
-                contactPopover.classList.toggle('hidden');
-                updateSidebarState();
-            });
-        }
-
-        // Listener Tema
-        linkTheme.addEventListener('click', handleThemeClick);
-        themePopover.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', setTheme);
-        });
-    }
-
-    initializeApp();
+    modalAdd = new bootstrap.Modal(document.getElementById('addModal'));
+    modalEdit = new bootstrap.Modal(document.getElementById('editModal'));
+    buscarJogos();
 });
+
+// --- GET: Buscar ---
+async function buscarJogos() {
+    try {
+        const resposta = await fetch(API_URL);
+        listaGlobalJogos = await resposta.json();
+        renderizarJogos(listaGlobalJogos);
+    } catch (erro) {
+        console.error(erro);
+    }
+}
+
+// --- RENDERIZAR (Visual dos Cards) ---
+function renderizarJogos(jogos) {
+    const lista = document.getElementById('lista-jogos');
+    lista.innerHTML = '';
+
+    if (jogos.length === 0) {
+        lista.innerHTML = `<p class="text-center text-secondary mt-5">Nenhum jogo no backlog.</p>`;
+        return;
+    }
+
+    jogos.forEach(jogo => {
+        // Define cor do status
+        let statusClass = 'bg-secondary';
+        if (jogo.status === 'Jogando') statusClass = 'bg-success';
+        if (jogo.status === 'Desejado') statusClass = 'bg-info';
+        if (jogo.status === 'Zerado') statusClass = 'bg-warning text-dark';
+
+        const col = document.createElement('div');
+        col.className = 'col-md-6 col-lg-4';
+        col.innerHTML = `
+            <div class="game-card p-4 h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h4 class="fw-bold text-white mb-0">${jogo.nome}</h4>
+                        <span class="badge ${statusClass}">${jogo.status}</span>
+                    </div>
+                    
+                    <div class="stats-grid mt-3">
+                        <div class="stat-item">
+                            <i class="bi bi-trophy-fill text-warning"></i>
+                            <small>Rank</small>
+                            <strong>${jogo.rank || '-'}</strong>
+                        </div>
+                        <div class="stat-item">
+                            <i class="bi bi-clock-history text-info"></i>
+                            <small>Tempo</small>
+                            <strong>${jogo.tempo || '-'}</strong>
+                        </div>
+                        <div class="stat-item">
+                            <i class="bi bi-fire text-danger"></i>
+                            <small>Streak</small>
+                            <strong>${jogo.streak || '0'} dias</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-top border-secondary d-flex justify-content-end gap-2">
+                    <button class="btn btn-sm btn-outline-light" onclick="prepararEdicao('${jogo.id}')">
+                        <i class="bi bi-pencil"></i> Editar
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deletarJogo('${jogo.id}')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        lista.appendChild(col);
+    });
+}
+
+// --- POST: Adicionar Completo ---
+async function adicionarJogo() {
+    const novoJogo = {
+        nome: document.getElementById('titulo').value,
+        status: document.getElementById('status').value,
+        rank: document.getElementById('rank').value,
+        tempo: document.getElementById('tempo').value,
+        streak: document.getElementById('streak').value
+    };
+
+    if (!novoJogo.nome) return Swal.fire('Erro', 'Nome é obrigatório!', 'error');
+
+    try {
+        await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(novoJogo)
+        });
+        document.getElementById('form-add').reset();
+        modalAdd.hide();
+        buscarJogos();
+        Swal.fire('Sucesso', 'Jogo adicionado!', 'success');
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+// --- PREPARAR EDIÇÃO (Abre Modal com dados) ---
+function prepararEdicao(id) {
+    const jogo = listaGlobalJogos.find(j => j.id == id);
+    if (!jogo) return;
+
+    // Preenche os campos do modal de edição
+    document.getElementById('edit-id').value = jogo.id;
+    document.getElementById('edit-titulo').value = jogo.nome;
+    document.getElementById('edit-status').value = jogo.status;
+    document.getElementById('edit-rank').value = jogo.rank || '';
+    document.getElementById('edit-tempo').value = jogo.tempo || '';
+    document.getElementById('edit-streak').value = jogo.streak || '';
+
+    modalEdit.show();
+}
+
+// --- PUT: Salvar Edição ---
+async function salvarEdicao() {
+    const id = document.getElementById('edit-id').value;
+    const jogoAtualizado = {
+        nome: document.getElementById('edit-titulo').value,
+        status: document.getElementById('edit-status').value,
+        rank: document.getElementById('edit-rank').value,
+        tempo: document.getElementById('edit-tempo').value,
+        streak: document.getElementById('edit-streak').value
+    };
+
+    try {
+        await fetch(`${API_URL}/${id}`, {
+            method: 'PUT', // Atualiza o objeto todo
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(jogoAtualizado)
+        });
+        modalEdit.hide();
+        buscarJogos();
+        Swal.fire('Atualizado', 'Dados do jogo salvos!', 'success');
+    } catch (e) {
+        Swal.fire('Erro', 'Falha ao atualizar.', 'error');
+    }
+}
+
+// --- DELETE ---
+async function deletarJogo(id) {
+    const result = await Swal.fire({
+        title: 'Excluir?',
+        text: "Não dá pra voltar atrás!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, excluir',
+        background: '#202024', color: '#fff'
+    });
+
+    if (result.isConfirmed) {
+        await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+        buscarJogos();
+        Swal.fire('Deletado!', '', 'success');
+    }
+}
+
+function filtrarJogos() {
+    const termo = document.getElementById('campo-busca').value.toLowerCase();
+    const filtrados = listaGlobalJogos.filter(j => j.nome.toLowerCase().includes(termo));
+    renderizarJogos(filtrados);
+}

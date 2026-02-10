@@ -1,0 +1,28 @@
+{
+  "jogos": [
+    {
+      "id": "1",
+      "nome": "Hollow Knight",
+      "status": "Jogando",
+      "rank": "102%",
+      "tempo": "45h",
+      "streak": 3
+    },
+    {
+      "nome": "League of Legends",
+      "status": "",
+      "rank": "Mestre IV",
+      "tempo": "2000h+",
+      "streak": "12",
+      "id": "2"
+    },
+    {
+      "nome": "Valorant",
+      "status": "Jogando",
+      "rank": "Ouro 2",
+      "tempo": "4000h+",
+      "streak": "98",
+      "id": "3"
+    }
+  ]
+}
