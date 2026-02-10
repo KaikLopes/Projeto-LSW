@@ -1,53 +1,77 @@
 const API_URL = 'http://localhost:3000/jogos';
 let listaGlobalJogos = [];
-let modalAdd; // Variável para controlar o modal do Bootstrap
+let modalAdd;
+let modalEdit;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Inicializa o modal
     modalAdd = new bootstrap.Modal(document.getElementById('addModal'));
+    modalEdit = new bootstrap.Modal(document.getElementById('editModal'));
     buscarJogos();
 });
 
-// --- 1. GET (Buscar) ---
+// --- GET: Buscar ---
 async function buscarJogos() {
     try {
         const resposta = await fetch(API_URL);
         listaGlobalJogos = await resposta.json();
         renderizarJogos(listaGlobalJogos);
     } catch (erro) {
-        Swal.fire('Erro!', 'Não foi possível conectar ao servidor.', 'error');
+        console.error(erro);
     }
 }
 
-// --- Renderização Visual ---
+// --- RENDERIZAR (Visual dos Cards) ---
 function renderizarJogos(jogos) {
     const lista = document.getElementById('lista-jogos');
     lista.innerHTML = '';
 
     if (jogos.length === 0) {
-        lista.innerHTML = `
-            <div class="col-12 text-center text-secondary mt-5">
-                <i class="bi bi-controller display-4"></i>
-                <p class="mt-3">Nenhum jogo encontrado. Adicione um novo!</p>
-            </div>`;
+        lista.innerHTML = `<p class="text-center text-secondary mt-5">Nenhum jogo no backlog.</p>`;
         return;
     }
 
     jogos.forEach(jogo => {
+        // Define cor do status
+        let statusClass = 'bg-secondary';
+        if (jogo.status === 'Jogando') statusClass = 'bg-success';
+        if (jogo.status === 'Desejado') statusClass = 'bg-info';
+        if (jogo.status === 'Zerado') statusClass = 'bg-warning text-dark';
+
         const col = document.createElement('div');
         col.className = 'col-md-6 col-lg-4';
         col.innerHTML = `
-            <div class="game-card p-4 d-flex flex-column justify-content-between">
+            <div class="game-card p-4 h-100 d-flex flex-column justify-content-between">
                 <div>
-                    <h4 class="fw-bold mb-1">${jogo.nome}</h4>
-                    <span class="status-badge mb-3 d-inline-block">${jogo.status}</span>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h4 class="fw-bold text-white mb-0">${jogo.nome}</h4>
+                        <span class="badge ${statusClass}">${jogo.status}</span>
+                    </div>
+                    
+                    <div class="stats-grid mt-3">
+                        <div class="stat-item">
+                            <i class="bi bi-trophy-fill text-warning"></i>
+                            <small>Rank</small>
+                            <strong>${jogo.rank || '-'}</strong>
+                        </div>
+                        <div class="stat-item">
+                            <i class="bi bi-clock-history text-info"></i>
+                            <small>Tempo</small>
+                            <strong>${jogo.tempo || '-'}</strong>
+                        </div>
+                        <div class="stat-item">
+                            <i class="bi bi-fire text-danger"></i>
+                            <small>Streak</small>
+                            <strong>${jogo.streak || '0'} dias</strong>
+                        </div>
+                    </div>
                 </div>
-                <div class="mt-4 d-flex justify-content-end gap-2">
-                    <button class="btn btn-sm btn-outline-light" onclick="editarStatus('${jogo.id}', '${jogo.nome}', '${jogo.status}')">
-                        <i class="bi bi-pencil-square"></i> Editar
+
+                <div class="mt-4 pt-3 border-top border-secondary d-flex justify-content-end gap-2">
+                    <button class="btn btn-sm btn-outline-light" onclick="prepararEdicao('${jogo.id}')">
+                        <i class="bi bi-pencil"></i> Editar
                     </button>
                     <button class="btn btn-sm btn-outline-danger" onclick="deletarJogo('${jogo.id}')">
-                        <i class="bi bi-trash"></i> Excluir
+                        <i class="bi bi-trash"></i>
                     </button>
                 </div>
             </div>
@@ -56,106 +80,96 @@ function renderizarJogos(jogos) {
     });
 }
 
-// --- Busca (Filtro Local) ---
-function filtrarJogos() {
-    const termo = document.getElementById('campo-busca').value.toLowerCase();
-    const filtrados = listaGlobalJogos.filter(jogo => 
-        jogo.nome.toLowerCase().includes(termo) || 
-        jogo.status.toLowerCase().includes(termo)
-    );
-    renderizarJogos(filtrados);
-}
-
-// --- 2. POST (Adicionar) ---
+// --- POST: Adicionar Completo ---
 async function adicionarJogo() {
-    const titulo = document.getElementById('titulo').value;
-    const status = document.getElementById('status').value;
+    const novoJogo = {
+        nome: document.getElementById('titulo').value,
+        status: document.getElementById('status').value,
+        rank: document.getElementById('rank').value,
+        tempo: document.getElementById('tempo').value,
+        streak: document.getElementById('streak').value
+    };
 
-    if (!titulo) {
-        Swal.fire('Atenção', 'O nome do jogo é obrigatório!', 'warning');
-        return;
-    }
+    if (!novoJogo.nome) return Swal.fire('Erro', 'Nome é obrigatório!', 'error');
 
     try {
         await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nome: titulo, status: status })
+            body: JSON.stringify(novoJogo)
         });
-        
-        // Limpa form, fecha modal e avisa
         document.getElementById('form-add').reset();
         modalAdd.hide();
-        Swal.fire('Sucesso!', 'Jogo adicionado ao backlog.', 'success');
         buscarJogos();
-        
-    } catch (erro) {
-        Swal.fire('Erro!', 'Falha ao salvar o jogo.', 'error');
+        Swal.fire('Sucesso', 'Jogo adicionado!', 'success');
+    } catch (e) {
+        console.error(e);
     }
 }
 
-// --- 3. PUT (Editar com SweetAlert Input) ---
-async function editarStatus(id, nomeAtual, statusAtual) {
-    // Pop-up bonito para selecionar novo status
-    const { value: novoStatus } = await Swal.fire({
-        title: `Editar: ${nomeAtual}`,
-        input: 'select',
-        inputOptions: {
-            'Desejado': 'Desejado',
-            'Jogando': 'Jogando',
-            'Zerado': 'Zerado',
-            'Platinado': 'Platinado',
-            'Abandonado': 'Abandonado'
-        },
-        inputValue: statusAtual,
-        showCancelButton: true,
-        confirmButtonColor: '#8257e6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Salvar',
-        cancelButtonText: 'Cancelar'
-    });
+// --- PREPARAR EDIÇÃO (Abre Modal com dados) ---
+function prepararEdicao(id) {
+    const jogo = listaGlobalJogos.find(j => j.id == id);
+    if (!jogo) return;
 
-    if (novoStatus) {
-        try {
-            await fetch(`${API_URL}/${id}`, {
-                method: 'PATCH', // Mantive PATCH para facilitar
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: novoStatus })
-            });
-            Swal.fire('Atualizado!', 'Status alterado com sucesso.', 'success');
-            buscarJogos();
-        } catch (erro) {
-            Swal.fire('Erro', 'Não foi possível atualizar.', 'error');
-        }
+    // Preenche os campos do modal de edição
+    document.getElementById('edit-id').value = jogo.id;
+    document.getElementById('edit-titulo').value = jogo.nome;
+    document.getElementById('edit-status').value = jogo.status;
+    document.getElementById('edit-rank').value = jogo.rank || '';
+    document.getElementById('edit-tempo').value = jogo.tempo || '';
+    document.getElementById('edit-streak').value = jogo.streak || '';
+
+    modalEdit.show();
+}
+
+// --- PUT: Salvar Edição ---
+async function salvarEdicao() {
+    const id = document.getElementById('edit-id').value;
+    const jogoAtualizado = {
+        nome: document.getElementById('edit-titulo').value,
+        status: document.getElementById('edit-status').value,
+        rank: document.getElementById('edit-rank').value,
+        tempo: document.getElementById('edit-tempo').value,
+        streak: document.getElementById('edit-streak').value
+    };
+
+    try {
+        await fetch(`${API_URL}/${id}`, {
+            method: 'PUT', // Atualiza o objeto todo
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(jogoAtualizado)
+        });
+        modalEdit.hide();
+        buscarJogos();
+        Swal.fire('Atualizado', 'Dados do jogo salvos!', 'success');
+    } catch (e) {
+        Swal.fire('Erro', 'Falha ao atualizar.', 'error');
     }
 }
 
-// --- 4. DELETE (Confirmação visual) ---
+// --- DELETE ---
 async function deletarJogo(id) {
     const result = await Swal.fire({
-        title: 'Tem certeza?',
-        text: "Você não poderá reverter isso!",
+        title: 'Excluir?',
+        text: "Não dá pra voltar atrás!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sim, excluir!',
-        cancelButtonText: 'Cancelar',
-        background: '#202024', // Fundo escuro pro modal combinar
-        color: '#fff'
+        confirmButtonText: 'Sim, excluir',
+        background: '#202024', color: '#fff'
     });
 
     if (result.isConfirmed) {
-        try {
-            await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-            Swal.fire(
-                'Deletado!',
-                'O jogo foi removido do backlog.',
-                'success'
-            );
-            buscarJogos();
-        } catch (erro) {
-            Swal.fire('Erro', 'Falha ao deletar.', 'error');
-        }
+        await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+        buscarJogos();
+        Swal.fire('Deletado!', '', 'success');
     }
+}
+
+function filtrarJogos() {
+    const termo = document.getElementById('campo-busca').value.toLowerCase();
+    const filtrados = listaGlobalJogos.filter(j => j.nome.toLowerCase().includes(termo));
+    renderizarJogos(filtrados);
 }
