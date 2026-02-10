@@ -1,29 +1,83 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Backlog de Jogos</title>
+    <title>Game Vault Pro</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>🎮 Meus Jogos (Miniprojeto 2)</h1>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark-custom fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="bi bi-controller text-purple"></i> Game Vault
+            </a>
+            <div class="d-flex ms-auto">
+                <div class="input-group">
+                    <span class="input-group-text bg-dark-lighter border-0 text-white"><i class="bi bi-search"></i></span>
+                    <input type="text" id="campo-busca" class="form-control bg-dark-lighter border-0 text-white" placeholder="Buscar jogo..." oninput="filtrarJogos()">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5 pt-5">
         
-        <div class="card add-game">
-            <h3>Adicionar Novo Jogo</h3>
-            <input type="text" id="titulo" placeholder="Nome do Jogo (ex: GTA VI)">
-            <input type="text" id="status" placeholder="Status (ex: Zerado)">
-            <button onclick="adicionarJogo()">Salvar Jogo (POST)</button>
+        <div class="d-flex justify-content-between align-items-center mb-4 mt-4">
+            <h2 class="text-white fw-bold">Seu Backlog</h2>
+            <button class="btn btn-purple" data-bs-toggle="modal" data-bs-target="#addModal">
+                <i class="bi bi-plus-lg"></i> Novo Jogo
+            </button>
         </div>
 
-        <hr>
+        <div id="lista-jogos" class="row g-4">
+            <div class="text-center mt-5">
+                <div class="spinner-border text-purple" role="status"></div>
+            </div>
+        </div>
 
-        <div id="lista-jogos">
-            <p>Carregando jogos...</p>
+    </div>
+
+    <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark-card text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Adicionar Novo Jogo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-add">
+                        <div class="mb-3">
+                            <label class="form-label">Nome do Jogo</label>
+                            <input type="text" class="form-control bg-dark-lighter text-white border-secondary" id="titulo" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Status Atual</label>
+                            <select class="form-select bg-dark-lighter text-white border-secondary" id="status">
+                                <option value="Desejado">Desejado</option>
+                                <option value="Jogando">Jogando</option>
+                                <option value="Zerado">Zerado</option>
+                                <option value="Platinado">Platinado</option>
+                                <option value="Abandonado">Abandonado</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-purple" onclick="adicionarJogo()">Salvar</button>
+                </div>
+            </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="script.js"></script>
 </body>
 </html>
