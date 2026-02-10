@@ -1,49 +1,82 @@
-# 🎵 KLDMusic - Web Music Player
+# 🎮 Game Vault - Gerenciador de Backlog
 
-Bem-vindo ao repositório do **KLDMusic**, uma aplicação web de streaming de música desenvolvida com foco em experiência do usuário, design responsivo e consumo de APIs externas.
+![Status](https://img.shields.io/badge/Status-Finalizado-success)
+![Course](https://img.shields.io/badge/Curso-ADS-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-Este projeto foi desenvolvido para **fins escolares/acadêmicos**, demonstrando competências em desenvolvimento Front-End e integração de sistemas.
+> Aplicação web para gerenciamento de jogos utilizando consumo de API REST simulada e programação assíncrona.
 
-## 🚀 Sobre o Projeto
+## 💻 Sobre o Projeto
 
-O **KLDMusic** é um player de música moderno que permite aos usuários descobrir, buscar e reproduzir faixas de música gratuitamente. A aplicação consome dados em tempo real da **API do Jamendo**, oferecendo um catálogo diversificado de músicas independentes.
+O **Game Vault** é uma aplicação Single Page Application (SPA) desenvolvida para gerenciar um backlog pessoal de jogos. O projeto foi criado como parte da disciplina de Desenvolvimento Web, com o objetivo de praticar requisições HTTP (**GET, POST, PUT, DELETE**) e manipulação do DOM com JavaScript Moderno (Async/Await).
 
-O projeto foca na usabilidade, apresentando uma interface intuitiva com temas escuros (Dark Mode), navegação fluida e funcionalidades essenciais de um player de áudio profissional.
+A aplicação permite cadastrar jogos, monitorar status (rank, tempo de jogo, dias seguidos) e filtrar a biblioteca em tempo real.
 
-## ✨ Funcionalidades Principais
+## 🛠 Tecnologias Utilizadas
 
-*   **Reprodução de Áudio**: Controles completos (Play, Pause, Próximo, Anterior, Repetir) e barra de progresso interativa.
-*   **Exploração por Gêneros**: Seções automáticas para Rock, Pop, Eletrônica e HipHop, além das tendências do momento.
-*   **Busca Integrada**: Pesquise por músicas, artistas ou álbuns diretamente na base de dados da API.
-*   **Sistema de Favoritos**: Salve suas músicas preferidas (os dados são persistidos no navegador via `localStorage`).
-*   **Fila de Reprodução (Queue)**: Visualize e gerencie a lista de músicas atual.
-*   **Interface Responsiva e Dinâmica**:
-    *   Menu lateral (Sidebar) retrátil com animações suaves.
-    *   Player flutuante (Floating Player) para controle contínuo durante a navegação.
-    *   Design adaptável para diferentes resoluções.
-*   **Interatividade**: Modal de feedback e sistema de avaliação com estrelas.
+* **Frontend:**
+    * HTML5 & CSS3
+    * JavaScript (ES6+)
+    * [Bootstrap 5](https://getbootstrap.com/) (Layout e Responsividade)
+    * [SweetAlert2](https://sweetalert2.github.io/) (Alertas e Modais interativos)
+    * Bootstrap Icons & Google Fonts (Poppins)
+* **Backend (Simulado):**
+    * [JSON-Server](https://github.com/typicode/json-server) (API REST Fake)
+    * Node.js (Ambiente de execução) 
 
-## 🛠️ Tecnologias Utilizadas
+## ✨ Funcionalidades
 
-*   **HTML5**: Estruturação semântica e acessível.
-*   **CSS3**: Estilização avançada utilizando Flexbox, CSS Grid, Variáveis CSS (Custom Properties) e Animações.
-*   **JavaScript (Vanilla ES6+)**: Lógica de aplicação SPA (Single Page Application), manipulação do DOM, controle da API de Áudio do navegador e requisições assíncronas (`fetch`).
-*   **API Externa**: Integração com a Jamendo Developers API para streaming de áudio e metadados.
+* ✅ **Listagem de Jogos (GET):** Carregamento dinâmico dos jogos salvos na API.
+* ✅ **Cadastro Detalhado (POST):** Adição de jogos com nome, status, rank, tempo de jogo e streak (dias seguidos).
+* ✅ **Edição Completa (PUT):** Atualização de todos os dados do jogo através de um modal dedicado.
+* ✅ **Exclusão Segura (DELETE):** Remoção de jogos com confirmação visual via SweetAlert.
+* 🔍 **Busca em Tempo Real:** Filtro instantâneo por nome ou status sem recarregar a página.
+* 🎨 **Dark Mode:** Interface moderna e responsiva com tema escuro.
 
-## 👥 Autores
+## 🚀 Como Executar o Projeto
 
-Projeto desenvolvido pela equipe:
+### Pré-requisitos
+Antes de começar, você precisa ter o **[Node.js](https://nodejs.org/en/)** instalado em sua máquina.
 
-*   **Kaik Lopes**
-*   **Diego Sousa**
-*   **Lucas Pavs**
+### Passo a Passo
 
-## 📝 Nota Legal
+1.  **Clone o repositório** (ou baixe os arquivos):
+    ```bash
+    git clone [https://github.com/seu-usuario/game-vault.git](https://github.com/seu-usuario/game-vault.git)
+    cd game-vault
+    ```
 
-Este software foi criado exclusivamente para fins de aprendizado e avaliação escolar. Todo o conteúdo musical é provido por terceiros (Jamendo) e está sujeito aos termos de uso da respectiva plataforma.
+2.  **Instale as dependências** (caso ainda não tenha o json-server):
+    ```bash
+    npm install
+    # Ou instale o json-server globalmente/desenvolvimento
+    npm install json-server -D
+    ```
 
----
+3.  **Inicie a API Simulada**:
+    Abra o terminal na pasta do projeto e execute:
+    ```bash
+    npx json-server --watch db.json
+    ```
+    *O servidor iniciará em `http://localhost:3000/jogos`*.
 
-<p align="center">
-  <i>Desenvolvido com dedicação para a disciplina de Desenvolvimento Web.</i>
-</p>
+4.  **Abra a Aplicação**:
+    Basta abrir o arquivo `index.html` no seu navegador preferido ou usar a extensão "Live Server" do VS Code.
+
+## 📂 Estrutura da API (db.json)
+
+O projeto utiliza um arquivo JSON local para persistência de dados. Exemplo da estrutura:
+
+```json
+{
+  "jogos": [
+    {
+      "id": "1",
+      "nome": "League of Legends",
+      "status": "Viciado",
+      "rank": "Esmeralda IV",
+      "tempo": "2000h+",
+      "streak": 12
+    }
+  ]
+}
