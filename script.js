@@ -1,94 +1,161 @@
 const API_URL = 'http://localhost:3000/jogos';
+let listaGlobalJogos = [];
+let modalAdd; // Variável para controlar o modal do Bootstrap
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Inicializa o modal
+    modalAdd = new bootstrap.Modal(document.getElementById('addModal'));
+    buscarJogos();
+});
 
 // --- 1. GET (Buscar) ---
 async function buscarJogos() {
     try {
         const resposta = await fetch(API_URL);
-        const jogos = await resposta.json();
-        renderizarJogos(jogos);
+        listaGlobalJogos = await resposta.json();
+        renderizarJogos(listaGlobalJogos);
     } catch (erro) {
-        console.error("Erro ao buscar:", erro);
-        alert("Erro ao conectar com o servidor! Verifique se o terminal está aberto.");
+        Swal.fire('Erro!', 'Não foi possível conectar ao servidor.', 'error');
     }
 }
 
-// Função visual para mostrar na tela
+// --- Renderização Visual ---
 function renderizarJogos(jogos) {
     const lista = document.getElementById('lista-jogos');
-    lista.innerHTML = ''; 
+    lista.innerHTML = '';
+
+    if (jogos.length === 0) {
+        lista.innerHTML = `
+            <div class="col-12 text-center text-secondary mt-5">
+                <i class="bi bi-controller display-4"></i>
+                <p class="mt-3">Nenhum jogo encontrado. Adicione um novo!</p>
+            </div>`;
+        return;
+    }
 
     jogos.forEach(jogo => {
-        const div = document.createElement('div');
-        div.className = 'card game-item';
-        div.innerHTML = `
-            <div>
-                <strong>${jogo.nome}</strong> <br>
-                <small>Status: ${jogo.status}</small>
-            </div>
-            <div class="actions">
-                <button class="btn-edit" onclick="editarStatus('${jogo.id}')">Editar</button>
-                <button class="btn-delete" onclick="deletarJogo('${jogo.id}')">Excluir</button>
+        const col = document.createElement('div');
+        col.className = 'col-md-6 col-lg-4';
+        col.innerHTML = `
+            <div class="game-card p-4 d-flex flex-column justify-content-between">
+                <div>
+                    <h4 class="fw-bold mb-1">${jogo.nome}</h4>
+                    <span class="status-badge mb-3 d-inline-block">${jogo.status}</span>
+                </div>
+                <div class="mt-4 d-flex justify-content-end gap-2">
+                    <button class="btn btn-sm btn-outline-light" onclick="editarStatus('${jogo.id}', '${jogo.nome}', '${jogo.status}')">
+                        <i class="bi bi-pencil-square"></i> Editar
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deletarJogo('${jogo.id}')">
+                        <i class="bi bi-trash"></i> Excluir
+                    </button>
+                </div>
             </div>
         `;
-        lista.appendChild(div);
+        lista.appendChild(col);
     });
 }
 
-// --- 2. POST (Criar) ---
+// --- Busca (Filtro Local) ---
+function filtrarJogos() {
+    const termo = document.getElementById('campo-busca').value.toLowerCase();
+    const filtrados = listaGlobalJogos.filter(jogo => 
+        jogo.nome.toLowerCase().includes(termo) || 
+        jogo.status.toLowerCase().includes(termo)
+    );
+    renderizarJogos(filtrados);
+}
+
+// --- 2. POST (Adicionar) ---
 async function adicionarJogo() {
     const titulo = document.getElementById('titulo').value;
     const status = document.getElementById('status').value;
 
-    if (!titulo || !status) return alert("Preencha todos os campos!");
-
-    const novoJogo = { nome: titulo, status: status };
+    if (!titulo) {
+        Swal.fire('Atenção', 'O nome do jogo é obrigatório!', 'warning');
+        return;
+    }
 
     try {
         await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(novoJogo)
+            body: JSON.stringify({ nome: titulo, status: status })
         });
-        // Limpa os campos e recarrega a lista
-        document.getElementById('titulo').value = '';
-        document.getElementById('status').value = '';
-        buscarJogos(); 
-    } catch (erro) {
-        console.error("Erro ao adicionar:", erro);
-    }
-}
-
-// --- 3. PUT (Atualizar) ---
-async function editarStatus(id) {
-    const novoStatus = prompt("Digite o novo status para este jogo:");
-    if (!novoStatus) return;
-
-    try {
-        // Usando PATCH para mudar só o status sem precisar enviar o objeto todo
-        await fetch(`${API_URL}/${id}`, {
-            method: 'PATCH', 
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: novoStatus })
-        });
+        
+        // Limpa form, fecha modal e avisa
+        document.getElementById('form-add').reset();
+        modalAdd.hide();
+        Swal.fire('Sucesso!', 'Jogo adicionado ao backlog.', 'success');
         buscarJogos();
+        
     } catch (erro) {
-        console.error("Erro ao atualizar:", erro);
+        Swal.fire('Erro!', 'Falha ao salvar o jogo.', 'error');
     }
 }
 
-// --- 4. DELETE (Apagar) ---
+// --- 3. PUT (Editar com SweetAlert Input) ---
+async function editarStatus(id, nomeAtual, statusAtual) {
+    // Pop-up bonito para selecionar novo status
+    const { value: novoStatus } = await Swal.fire({
+        title: `Editar: ${nomeAtual}`,
+        input: 'select',
+        inputOptions: {
+            'Desejado': 'Desejado',
+            'Jogando': 'Jogando',
+            'Zerado': 'Zerado',
+            'Platinado': 'Platinado',
+            'Abandonado': 'Abandonado'
+        },
+        inputValue: statusAtual,
+        showCancelButton: true,
+        confirmButtonColor: '#8257e6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Salvar',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (novoStatus) {
+        try {
+            await fetch(`${API_URL}/${id}`, {
+                method: 'PATCH', // Mantive PATCH para facilitar
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: novoStatus })
+            });
+            Swal.fire('Atualizado!', 'Status alterado com sucesso.', 'success');
+            buscarJogos();
+        } catch (erro) {
+            Swal.fire('Erro', 'Não foi possível atualizar.', 'error');
+        }
+    }
+}
+
+// --- 4. DELETE (Confirmação visual) ---
 async function deletarJogo(id) {
-    if(!confirm("Tem certeza que quer excluir esse jogo?")) return;
+    const result = await Swal.fire({
+        title: 'Tem certeza?',
+        text: "Você não poderá reverter isso!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, excluir!',
+        cancelButtonText: 'Cancelar',
+        background: '#202024', // Fundo escuro pro modal combinar
+        color: '#fff'
+    });
 
-    try {
-        await fetch(`${API_URL}/${id}`, {
-            method: 'DELETE'
-        });
-        buscarJogos();
-    } catch (erro) {
-        console.error("Erro ao deletar:", erro);
+    if (result.isConfirmed) {
+        try {
+            await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            Swal.fire(
+                'Deletado!',
+                'O jogo foi removido do backlog.',
+                'success'
+            );
+            buscarJogos();
+        } catch (erro) {
+            Swal.fire('Erro', 'Falha ao deletar.', 'error');
+        }
     }
 }
-
-// Inicia carregando os dados assim que abre a tela
-buscarJogos();
